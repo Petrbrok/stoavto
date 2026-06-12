@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #08090b;
+  --foreground: #f5f1f2;
+  --graphite: #111318;
+  --muted: #a5a8af;
+  --line: rgba(255, 255, 255, 0.12);
+  --burgundy: #9e1f36;
+  --burgundy-soft: #c43a52;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 72% 12%, rgba(158, 31, 54, 0.18), transparent 28rem),
+    linear-gradient(180deg, #0b0c10 0%, #08090b 48%, #0d0e12 100%);
+  color: var(--foreground);
+  font-family: var(--font-manrope), Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(196, 58, 82, 0.45);
+  color: #fff;
+}
+
+.hero-mask {
+  background:
+    linear-gradient(90deg, rgba(8, 9, 11, 0.98) 0%, rgba(8, 9, 11, 0.84) 35%, rgba(8, 9, 11, 0.36) 63%, rgba(8, 9, 11, 0.1) 100%),
+    linear-gradient(180deg, rgba(8, 9, 11, 0.15) 0%, rgba(8, 9, 11, 0.78) 100%);
+}
+
+.noise {
+  position: relative;
+}
+
+.noise::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 100% 4px;
+}
+
+@media (max-width: 767px) {
+  .hero-mask {
+    background:
+      linear-gradient(180deg, rgba(8, 9, 11, 0.2) 0%, rgba(8, 9, 11, 0.74) 48%, rgba(8, 9, 11, 0.98) 100%),
+      linear-gradient(90deg, rgba(8, 9, 11, 0.78) 0%, rgba(8, 9, 11, 0.12) 100%);
+  }
+}
