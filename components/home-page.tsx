@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import * as simpleIcons from "simple-icons";
@@ -102,14 +101,7 @@ export function HomePage() {
       <SiteHeader onLead={openLead} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
         <div className="absolute inset-y-0 right-0 hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
-          <Image
-            src="/images/hero-stoavto.png"
-            alt="Современный автотехцентр СТОАВТО с легковым автомобилем и микроавтобусом"
-            fill
-            priority
-            sizes="100vw"
-            className="object-contain object-right-bottom"
-          />
+          <HeroVehicleAnimation className="h-full w-full object-contain object-right-bottom" />
           <ServiceHotspots onCalculate={scrollToCalculator} />
         </div>
         <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
@@ -262,6 +254,28 @@ function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
   );
 }
 
+function HeroVehicleAnimation({ className }: { className: string }) {
+  return (
+    <video
+      className={className}
+      src="/videos/stoavto-hero-animation.mp4"
+      autoPlay
+      muted
+      playsInline
+      preload="auto"
+      poster="/images/hero-stoavto.png"
+      aria-label="STOAVTO hero animation with passenger car and commercial van"
+      onEnded={(event) => {
+        const video = event.currentTarget;
+        video.pause();
+        if (Number.isFinite(video.duration) && video.duration > 0) {
+          video.currentTime = Math.max(video.duration - 0.05, 0);
+        }
+      }}
+    />
+  );
+}
+
 function MobilePriceCards() {
   return (
     <section className="border-b border-white/10 bg-[#08090b] px-5 pb-10 md:hidden">
@@ -291,13 +305,7 @@ function MobileHeroImage() {
   return (
     <section className="border-b border-white/10 bg-[#08090b] px-5 pb-8 md:hidden">
       <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden border border-white/10">
-        <Image
-          src="/images/hero-stoavto.png"
-          alt="Легковой автомобиль и микроавтобус в автотехцентре СТОАВТО"
-          fill
-          sizes="100vw"
-          className="object-cover object-[68%_50%]"
-        />
+        <HeroVehicleAnimation className="h-full w-full object-cover object-[68%_50%]" />
       </div>
     </section>
   );
