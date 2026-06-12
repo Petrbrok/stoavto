@@ -35,11 +35,9 @@ const hotspots = [
     id: "body",
     label: "Кузовной ремонт",
     price: "от 2 500 ₽",
-    x: "66%",
-    y: "63%",
-    cardX: "-70px",
-    cardY: "-132px",
-    line: "h-20",
+    point: { x: 64, y: 64 },
+    card: { x: 57, y: 47 },
+    anchor: { x: 64, y: 57 },
     href: "/uslugi/kuzovnoy-remont",
     description: "Дефектовка, восстановление геометрии и подготовка кузова к окраске."
   },
@@ -47,11 +45,9 @@ const hotspots = [
     id: "paint",
     label: "Покраска",
     price: "от 3 000 ₽",
-    x: "77%",
-    y: "54%",
-    cardX: "34px",
-    cardY: "-106px",
-    line: "h-16",
+    point: { x: 82, y: 54 },
+    card: { x: 82, y: 44 },
+    anchor: { x: 82, y: 50 },
     href: "/uslugi/pokraska-avto",
     description: "Локальная и полная окраска с подбором цвета и контролем результата."
   },
@@ -59,11 +55,9 @@ const hotspots = [
     id: "detail",
     label: "Детейлинг",
     price: "от 3 500 ₽",
-    x: "82%",
-    y: "67%",
-    cardX: "-42px",
-    cardY: "34px",
-    line: "h-14",
+    point: { x: 76, y: 70 },
+    card: { x: 78, y: 76 },
+    anchor: { x: 78, y: 76 },
     href: "/uslugi/deteyling",
     description: "Полировка, защита кузова и подготовка автомобиля к выдаче."
   },
@@ -71,24 +65,19 @@ const hotspots = [
     id: "diagnostics",
     label: "Диагностика",
     price: "от 1 500 ₽",
-    x: "88%",
-    y: "56%",
-    cardX: "-210px",
-    cardY: "-116px",
-    line: "h-14",
+    point: { x: 87, y: 41 },
+    card: { x: 68, y: 34 },
+    anchor: { x: 82, y: 38 },
     href: "/uslugi/diagnostika",
-    description: "Компьютерная проверка, осмотр систем и понятный план работ.",
-    align: "right"
+    description: "Компьютерная проверка, осмотр систем и понятный план работ."
   },
   {
     id: "alignment",
     label: "Развал-схождение",
     price: "от 2 000 ₽",
-    x: "69%",
-    y: "77%",
-    cardX: "-150px",
-    cardY: "36px",
-    line: "h-14",
+    point: { x: 60, y: 77 },
+    card: { x: 52, y: 84 },
+    anchor: { x: 57, y: 84 },
     href: "/uslugi/razval-shozhdenie",
     description: "Контроль геометрии колес после ремонта и обслуживания."
   },
@@ -96,14 +85,11 @@ const hotspots = [
     id: "commercial",
     label: "Коммерческий транспорт",
     price: "от 4 500 ₽",
-    x: "88%",
-    y: "43%",
-    cardX: "-220px",
-    cardY: "-122px",
-    line: "h-16",
+    point: { x: 88, y: 32 },
+    card: { x: 76, y: 16 },
+    anchor: { x: 84, y: 24 },
     href: "/kommercheskiy-transport",
-    description: "Отдельное направление для микроавтобусов, фургонов и рабочих авто.",
-    align: "right"
+    description: "Отдельное направление для микроавтобусов, фургонов и рабочих авто."
   }
 ];
 
@@ -140,20 +126,20 @@ export function HomePage() {
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
       <SiteHeader onLead={openLead} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
-        <div className="absolute inset-0 hidden md:block">
+        <div className="absolute inset-y-0 right-0 hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
           <Image
             src="/images/hero-stoavto.png"
             alt="Современный автотехцентр СТОАВТО с легковым автомобилем и микроавтобусом"
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-contain object-right-bottom"
           />
-          <div className="hero-mask pointer-events-none absolute inset-0" />
           <ServiceHotspots onCalculate={scrollToCalculator} />
         </div>
+        <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
 
-        <div className="pointer-events-none relative z-10 mx-auto flex max-w-[1440px] items-end px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:items-center md:pb-16 lg:px-10">
+        <div className="pointer-events-none relative z-20 mx-auto flex max-w-[1440px] items-end px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:items-center md:pb-16 lg:px-10">
           <motion.div {...fadeUp} className="pointer-events-auto max-w-[920px] pb-6 md:pb-0">
             <p className="mb-5 w-fit border border-white/14 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72 backdrop-blur-md">
               СТОАВТО / полный цикл
@@ -236,89 +222,105 @@ function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const active = pinned ?? hovered;
+  const activeSpot = hotspots.find((spot) => spot.id === active);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-30 hidden md:block">
+      <svg className="absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        {hotspots.map((spot) => (
+          <line
+            key={spot.id}
+            x1={spot.point.x}
+            y1={spot.point.y}
+            x2={spot.anchor.x}
+            y2={spot.anchor.y}
+            vectorEffect="non-scaling-stroke"
+            className="stroke-white/42"
+            strokeWidth="1"
+          />
+        ))}
+      </svg>
       {hotspots.map((spot, index) => {
         const isActive = active === spot.id;
 
         return (
-          <motion.div
+          <motion.button
             key={spot.id}
-            className="pointer-events-auto absolute"
-            style={{ left: spot.x, top: spot.y }}
+            type="button"
+            className="pointer-events-auto absolute z-40 block h-5 w-5"
+            style={{ left: `${spot.point.x}%`, top: `${spot.point.y}%` }}
             initial={{ opacity: 0, scale: 0.78 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.55 + index * 0.08, duration: 0.5 }}
             onMouseEnter={() => setHovered(spot.id)}
             onMouseLeave={() => setHovered(null)}
+            onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
+            onFocus={() => setHovered(spot.id)}
+            aria-label={spot.label}
+            aria-expanded={isActive}
           >
-            <button
-              type="button"
-              className="relative z-20 block h-5 w-5"
-              onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
-              onFocus={() => setHovered(spot.id)}
-              aria-label={spot.label}
-              aria-expanded={isActive}
-            >
-              <span className="absolute inset-0 animate-ping bg-[#c43a52]/40" />
-              <span className="absolute inset-0 rounded-full border border-white/80 bg-[#c43a52] shadow-[0_0_35px_rgba(196,58,82,0.72)] transition" />
-              <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90" />
-            </button>
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-px -translate-x-1/2 bg-white/54"
-              style={{
-                height: spot.line === "h-20" ? 80 : spot.line === "h-16" ? 64 : 56,
-                transform:
-                  typeof spot.cardY === "string" && spot.cardY.startsWith("-")
-                    ? "translateX(-50%) translateY(-100%)"
-                    : "translateX(-50%)"
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
-              className={`absolute z-20 min-w-40 rounded-[18px] border border-white/18 bg-[linear-gradient(135deg,rgba(255,255,255,0.24),rgba(255,255,255,0.08))] px-5 py-4 text-left shadow-[0_22px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-[#c43a52]/60 ${
-                isActive ? "border-[#c43a52]/70 bg-[#5b1724]/55" : ""
-              }`}
-              style={{ transform: `translate(${spot.cardX}, ${spot.cardY})` }}
-            >
-              <span className="block text-sm font-bold text-white/68">{spot.label}</span>
-              <span className="mt-1 block text-lg font-black text-white">{spot.price}</span>
-            </button>
-            <AnimatePresence>
-              {isActive && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                  transition={{ duration: 0.22 }}
-                  className="absolute left-7 top-7 z-30 w-72 border border-white/12 bg-[#101217]/94 p-4 text-left shadow-[0_18px_50px_rgba(0,0,0,0.42)] backdrop-blur-xl"
-                >
-                  <h3 className="text-sm font-black text-white">{spot.label}</h3>
-                  <p className="mt-1 text-sm font-black text-[#f09aac]">{spot.price}</p>
-                  <p className="mt-2 text-xs leading-5 text-white/58">{spot.description}</p>
-                  <div className="mt-4 flex gap-2">
-                    <Link
-                      href={spot.href}
-                      className="border border-white/12 px-3 py-2 text-xs font-bold text-white/74 transition hover:border-[#c43a52] hover:text-white"
-                    >
-                      Подробнее
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={onCalculate}
-                      className="bg-[#9e1f36] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#b72b43]"
-                    >
-                      Рассчитать
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+            <span className="absolute inset-0 animate-ping rounded-full bg-[#c43a52]/40" />
+            <span className="absolute inset-0 rounded-full border border-white/80 bg-[#c43a52] shadow-[0_0_35px_rgba(196,58,82,0.72)] transition" />
+            <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90" />
+          </motion.button>
         );
       })}
+      {hotspots.map((spot, index) => {
+        const isActive = active === spot.id;
+
+        return (
+          <motion.button
+            key={`${spot.id}-card`}
+            type="button"
+            className={`pointer-events-auto absolute z-20 min-w-[150px] -translate-x-1/2 -translate-y-1/2 rounded-[18px] border border-white/18 bg-[linear-gradient(135deg,rgba(255,255,255,0.22),rgba(255,255,255,0.07))] px-4 py-3 text-left shadow-[0_22px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-[calc(50%+4px)] hover:border-[#c43a52]/60 ${
+              isActive ? "border-[#c43a52]/70 bg-[#5b1724]/55" : ""
+            }`}
+            style={{ left: `${spot.card.x}%`, top: `${spot.card.y}%` }}
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.48 + index * 0.06, duration: 0.42 }}
+            onMouseEnter={() => setHovered(spot.id)}
+            onMouseLeave={() => setHovered(null)}
+            onFocus={() => setHovered(spot.id)}
+            onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
+          >
+            <span className="block max-w-[130px] text-sm font-bold leading-5 text-white/72">{spot.label}</span>
+            <span className="mt-1 block text-xl font-black tracking-[-0.03em] text-white">{spot.price}</span>
+          </motion.button>
+        );
+      })}
+      <AnimatePresence>
+        {activeSpot && (
+          <motion.div
+            key={activeSpot.id}
+            initial={{ opacity: 0, x: 20, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.96 }}
+            transition={{ duration: 0.22 }}
+            className="pointer-events-auto absolute right-10 top-[46%] z-40 w-[310px] border border-white/12 bg-[#101217]/94 p-5 text-left shadow-[0_22px_70px_rgba(0,0,0,0.48)] backdrop-blur-xl"
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#c43a52]">Направление</p>
+            <h3 className="mt-2 text-lg font-black text-white">{activeSpot.label}</h3>
+            <p className="mt-1 text-lg font-black text-[#f09aac]">{activeSpot.price}</p>
+            <p className="mt-3 text-sm leading-6 text-white/62">{activeSpot.description}</p>
+            <div className="mt-5 flex gap-2">
+              <Link
+                href={activeSpot.href}
+                className="border border-white/12 px-4 py-3 text-sm font-bold text-white/74 transition hover:border-[#c43a52] hover:text-white"
+              >
+                Подробнее
+              </Link>
+              <button
+                type="button"
+                onClick={onCalculate}
+                className="bg-[#9e1f36] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#b72b43]"
+              >
+                Рассчитать
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
