@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import * as simpleIcons from "simple-icons";
 import { brands, facilityPhotos } from "@/data/site";
+import { AppointmentModal } from "@/components/appointment-modal";
 import { LeadFormModal } from "@/components/lead-form-modal";
 import { SiteHeader } from "@/components/site-header";
 
@@ -33,32 +34,48 @@ const hotspots = [
   {
     id: "body",
     label: "Кузовной ремонт",
-    x: "63%",
-    y: "64%",
+    price: "от 2 500 ₽",
+    x: "66%",
+    y: "63%",
+    cardX: "-70px",
+    cardY: "-132px",
+    line: "h-20",
     href: "/uslugi/kuzovnoy-remont",
     description: "Дефектовка, восстановление геометрии и подготовка кузова к окраске."
   },
   {
     id: "paint",
     label: "Покраска",
-    x: "72%",
+    price: "от 3 000 ₽",
+    x: "77%",
     y: "54%",
+    cardX: "34px",
+    cardY: "-106px",
+    line: "h-16",
     href: "/uslugi/pokraska-avto",
     description: "Локальная и полная окраска с подбором цвета и контролем результата."
   },
   {
     id: "detail",
     label: "Детейлинг",
-    x: "80%",
+    price: "от 3 500 ₽",
+    x: "82%",
     y: "67%",
+    cardX: "-42px",
+    cardY: "34px",
+    line: "h-14",
     href: "/uslugi/deteyling",
     description: "Полировка, защита кузова и подготовка автомобиля к выдаче."
   },
   {
     id: "diagnostics",
     label: "Диагностика",
-    x: "85%",
-    y: "58%",
+    price: "от 1 500 ₽",
+    x: "88%",
+    y: "56%",
+    cardX: "-210px",
+    cardY: "-116px",
+    line: "h-14",
     href: "/uslugi/diagnostika",
     description: "Компьютерная проверка, осмотр систем и понятный план работ.",
     align: "right"
@@ -66,24 +83,42 @@ const hotspots = [
   {
     id: "alignment",
     label: "Развал-схождение",
-    x: "67%",
+    price: "от 2 000 ₽",
+    x: "69%",
     y: "77%",
+    cardX: "-150px",
+    cardY: "36px",
+    line: "h-14",
     href: "/uslugi/razval-shozhdenie",
     description: "Контроль геометрии колес после ремонта и обслуживания."
   },
   {
     id: "commercial",
     label: "Коммерческий транспорт",
-    x: "87%",
+    price: "от 4 500 ₽",
+    x: "88%",
     y: "43%",
+    cardX: "-220px",
+    cardY: "-122px",
+    line: "h-16",
     href: "/kommercheskiy-transport",
     description: "Отдельное направление для микроавтобусов, фургонов и рабочих авто.",
     align: "right"
   }
 ];
 
+const servicePrices = [
+  { label: "Диагностика", value: "diagnostics", base: 1500, max: 3500, days: "1-2 часа" },
+  { label: "Кузовной ремонт", value: "body", base: 2500, max: 18000, days: "1-3 дня" },
+  { label: "Покраска", value: "paint", base: 3000, max: 22000, days: "2-5 дней" },
+  { label: "Детейлинг", value: "detail", base: 3500, max: 16000, days: "1 день" },
+  { label: "Развал-схождение", value: "alignment", base: 2000, max: 4500, days: "1-2 часа" },
+  { label: "Коммерческий транспорт", value: "commercial", base: 4500, max: 30000, days: "2-6 дней" }
+];
+
 export function HomePage() {
   const [isLeadOpen, setIsLeadOpen] = useState(false);
+  const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const reduceMotion = useReducedMotion();
 
   const fadeUp = useMemo(
@@ -96,6 +131,10 @@ export function HomePage() {
   );
 
   const openLead = () => setIsLeadOpen(true);
+  const openAppointment = () => setIsAppointmentOpen(true);
+  const scrollToCalculator = () => {
+    document.getElementById("price-calculator")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
@@ -111,7 +150,7 @@ export function HomePage() {
             className="object-cover object-center"
           />
           <div className="hero-mask pointer-events-none absolute inset-0" />
-          <ServiceHotspots onLead={openLead} />
+          <ServiceHotspots onCalculate={scrollToCalculator} />
         </div>
 
         <div className="pointer-events-none relative z-10 mx-auto flex max-w-[1440px] items-end px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:items-center md:pb-16 lg:px-10">
@@ -134,10 +173,10 @@ export function HomePage() {
               Кузовной ремонт, покраска, детейлинг, диагностика, развал-схождение и слесарные работы в одном автотехцентре.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ActionButton onClick={openLead} tone="primary">
+              <ActionButton onClick={scrollToCalculator} tone="primary">
                 Рассчитать стоимость
               </ActionButton>
-              <ActionButton onClick={openLead} tone="secondary">
+              <ActionButton onClick={openAppointment} tone="secondary">
                 Записаться на ремонт
               </ActionButton>
             </div>
@@ -154,10 +193,14 @@ export function HomePage() {
       </section>
 
       <MobileHeroImage />
+      <MobilePriceCards />
       <AdvantagesBar />
       <BrandLogos />
+      <PriceCalculator onLead={openLead} />
+      <QualityIdeas onAppointment={openAppointment} />
       <FacilitySections />
       <LeadFormModal open={isLeadOpen} onClose={() => setIsLeadOpen(false)} />
+      <AppointmentModal open={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} />
     </main>
   );
 }
@@ -189,7 +232,7 @@ function ActionButton({
   );
 }
 
-function ServiceHotspots({ onLead }: { onLead: () => void }) {
+function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const active = pinned ?? hovered;
@@ -198,7 +241,6 @@ function ServiceHotspots({ onLead }: { onLead: () => void }) {
     <div className="pointer-events-none absolute inset-0 z-30 hidden md:block">
       {hotspots.map((spot, index) => {
         const isActive = active === spot.id;
-        const alignRight = spot.align === "right";
 
         return (
           <motion.div
@@ -213,14 +255,36 @@ function ServiceHotspots({ onLead }: { onLead: () => void }) {
           >
             <button
               type="button"
-              className="relative block h-5 w-5"
+              className="relative z-20 block h-5 w-5"
               onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
               onFocus={() => setHovered(spot.id)}
               aria-label={spot.label}
               aria-expanded={isActive}
             >
               <span className="absolute inset-0 animate-ping bg-[#c43a52]/40" />
-              <span className="absolute inset-0 border border-white/70 bg-[#c43a52] shadow-[0_0_35px_rgba(196,58,82,0.72)] transition group-hover:scale-110" />
+              <span className="absolute inset-0 rounded-full border border-white/80 bg-[#c43a52] shadow-[0_0_35px_rgba(196,58,82,0.72)] transition" />
+              <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90" />
+            </button>
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-px -translate-x-1/2 bg-white/54"
+              style={{
+                height: spot.line === "h-20" ? 80 : spot.line === "h-16" ? 64 : 56,
+                transform:
+                  typeof spot.cardY === "string" && spot.cardY.startsWith("-")
+                    ? "translateX(-50%) translateY(-100%)"
+                    : "translateX(-50%)"
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
+              className={`absolute z-20 min-w-40 rounded-[18px] border border-white/18 bg-[linear-gradient(135deg,rgba(255,255,255,0.24),rgba(255,255,255,0.08))] px-5 py-4 text-left shadow-[0_22px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-[#c43a52]/60 ${
+                isActive ? "border-[#c43a52]/70 bg-[#5b1724]/55" : ""
+              }`}
+              style={{ transform: `translate(${spot.cardX}, ${spot.cardY})` }}
+            >
+              <span className="block text-sm font-bold text-white/68">{spot.label}</span>
+              <span className="mt-1 block text-lg font-black text-white">{spot.price}</span>
             </button>
             <AnimatePresence>
               {isActive && (
@@ -229,11 +293,10 @@ function ServiceHotspots({ onLead }: { onLead: () => void }) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
                   transition={{ duration: 0.22 }}
-                  className={`absolute top-[-18px] w-72 border border-white/12 bg-[#101217]/92 p-4 text-left shadow-[0_18px_50px_rgba(0,0,0,0.42)] backdrop-blur-xl ${
-                    alignRight ? "right-7" : "left-7"
-                  }`}
+                  className="absolute left-7 top-7 z-30 w-72 border border-white/12 bg-[#101217]/94 p-4 text-left shadow-[0_18px_50px_rgba(0,0,0,0.42)] backdrop-blur-xl"
                 >
                   <h3 className="text-sm font-black text-white">{spot.label}</h3>
+                  <p className="mt-1 text-sm font-black text-[#f09aac]">{spot.price}</p>
                   <p className="mt-2 text-xs leading-5 text-white/58">{spot.description}</p>
                   <div className="mt-4 flex gap-2">
                     <Link
@@ -244,7 +307,7 @@ function ServiceHotspots({ onLead }: { onLead: () => void }) {
                     </Link>
                     <button
                       type="button"
-                      onClick={onLead}
+                      onClick={onCalculate}
                       className="bg-[#9e1f36] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#b72b43]"
                     >
                       Рассчитать
@@ -257,6 +320,29 @@ function ServiceHotspots({ onLead }: { onLead: () => void }) {
         );
       })}
     </div>
+  );
+}
+
+function MobilePriceCards() {
+  return (
+    <section className="border-b border-white/10 bg-[#08090b] px-5 pb-10 md:hidden">
+      <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3">
+        {hotspots.map((spot) => (
+          <div
+            key={spot.id}
+            className="border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12))] p-4"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-black text-white">{spot.label}</h3>
+                <p className="mt-1 text-xs leading-5 text-white/54">{spot.description}</p>
+              </div>
+              <span className="shrink-0 text-sm font-black text-[#f09aac]">{spot.price}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -314,6 +400,137 @@ function BrandLogos() {
       </div>
     </section>
   );
+}
+
+function PriceCalculator({ onLead }: { onLead: () => void }) {
+  const [transport, setTransport] = useState("car");
+  const [service, setService] = useState("body");
+  const [size, setSize] = useState("medium");
+  const [urgent, setUrgent] = useState(false);
+  const [paint, setPaint] = useState(true);
+  const [report, setReport] = useState(true);
+
+  const selected = servicePrices.find((item) => item.value === service) ?? servicePrices[0];
+  const transportFactor = transport === "commercial" ? 1.35 : transport === "van" ? 1.18 : 1;
+  const sizeFactor = size === "small" ? 0.72 : size === "large" ? 1.55 : 1;
+  const urgentFactor = urgent ? 1.18 : 1;
+  const paintAdd = paint ? 3500 : 0;
+  const reportAdd = report ? 0 : -500;
+  const low = Math.max(1500, Math.round((selected.base * transportFactor * sizeFactor * urgentFactor + paintAdd + reportAdd) / 100) * 100);
+  const high = Math.round((selected.max * transportFactor * sizeFactor * urgentFactor + paintAdd + Math.max(reportAdd, 0)) / 100) * 100;
+
+  return (
+    <section id="price-calculator" className="scroll-mt-28 border-t border-white/10 bg-[#08090b] px-5 py-18 sm:px-8 lg:px-10">
+      <div className="mx-auto grid max-w-[1440px] gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <div>
+          <p className="w-fit border border-white/14 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/56">
+            Предварительный расчёт
+          </p>
+          <h2 className="mt-5 max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">
+            Узнайте порядок цены до визита в техцентр
+          </h2>
+          <p className="mt-5 max-w-xl text-base leading-7 text-white/62">
+            Калькулятор даёт ориентир. Точная стоимость фиксируется после осмотра, дефектовки и согласования сметы.
+          </p>
+        </div>
+
+        <div className="border border-white/10 bg-white/[0.025] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:p-7">
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-bold text-white/78">
+              Тип транспорта
+              <select value={transport} onChange={(event) => setTransport(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+                <option value="car">Легковой автомобиль</option>
+                <option value="van">Микроавтобус / фургон</option>
+                <option value="commercial">Коммерческий транспорт</option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-bold text-white/78">
+              Услуга
+              <select value={service} onChange={(event) => setService(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+                {servicePrices.map((item) => (
+                  <option key={item.value} value={item.value}>{item.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-bold text-white/78">
+              Объём работ
+              <select value={size} onChange={(event) => setSize(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+                <option value="small">Небольшой</option>
+                <option value="medium">Средний</option>
+                <option value="large">Крупный</option>
+              </select>
+            </label>
+            <div className="grid gap-3 border border-white/10 bg-black/16 p-4">
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+                Нужна покраска
+                <input type="checkbox" checked={paint} onChange={(event) => setPaint(event.target.checked)} />
+              </label>
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+                Срочно
+                <input type="checkbox" checked={urgent} onChange={(event) => setUrgent(event.target.checked)} />
+              </label>
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+                Фотоотчёт
+                <input type="checkbox" checked={report} onChange={(event) => setReport(event.target.checked)} />
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-6 border border-[#c43a52]/35 bg-[#9e1f36]/12 p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-white/52">Примерная стоимость</p>
+            <p className="mt-2 text-4xl font-black tracking-[-0.05em] text-white">
+              {formatRub(low)} - {formatRub(high)}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-white/62">
+              Ориентировочный срок: {selected.days}. Включаем дефектовку, согласование работ и понятный список этапов.
+            </p>
+            <button
+              type="button"
+              onClick={onLead}
+              className="mt-5 bg-white px-5 py-3 text-sm font-extrabold text-[#111318] transition hover:bg-[#f4d9de]"
+            >
+              Отправить расчёт
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function QualityIdeas({ onAppointment }: { onAppointment: () => void }) {
+  const ideas = [
+    ["Как считается цена", "Повреждение, деталь, покраска, тип транспорта — всё видно до старта."],
+    ["До начала работ", "Фотофиксация, дефектовка, смета и согласование скрытых работ."],
+    ["Свободные окна", "Быстрая запись на ближайшее удобное время без лишних звонков."],
+    ["Коммерческий транспорт без простоя", "Приоритет сроков, понятные этапы и фотоотчёт для рабочих машин."]
+  ];
+
+  return (
+    <section className="border-t border-white/10 bg-[#0b0c10] px-5 py-16 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-[1440px]">
+        <div className="grid gap-5 md:grid-cols-4">
+          {ideas.map(([title, text]) => (
+            <article key={title} className="border border-white/10 bg-white/[0.025] p-5">
+              <h3 className="text-lg font-black tracking-[-0.03em] text-white">{title}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/58">{text}</p>
+            </article>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onAppointment}
+          className="mt-6 bg-[#9e1f36] px-6 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+        >
+          Записаться на удобное время
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function formatRub(value: number) {
+  return new Intl.NumberFormat("ru-RU").format(value) + " ₽";
 }
 
 function BrandMark({ brand }: { brand: (typeof brands)[number] }) {

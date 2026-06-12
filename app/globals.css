@@ -46,8 +46,8 @@ button {
 
 .hero-mask {
   background:
-    linear-gradient(90deg, rgba(8, 9, 11, 0.98) 0%, rgba(8, 9, 11, 0.84) 35%, rgba(8, 9, 11, 0.36) 63%, rgba(8, 9, 11, 0.1) 100%),
-    linear-gradient(180deg, rgba(8, 9, 11, 0.15) 0%, rgba(8, 9, 11, 0.78) 100%);
+    linear-gradient(90deg, rgba(8, 9, 11, 0.98) 0%, rgba(8, 9, 11, 0.86) 30%, rgba(8, 9, 11, 0.22) 52%, rgba(8, 9, 11, 0.02) 76%, rgba(8, 9, 11, 0) 100%),
+    linear-gradient(180deg, rgba(8, 9, 11, 0.06) 0%, rgba(8, 9, 11, 0.18) 58%, rgba(8, 9, 11, 0.54) 100%);
 }
 
 .noise {
