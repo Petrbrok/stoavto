@@ -75,28 +75,25 @@ export const services = [
   }
 ];
 
-export const brands = [
-  "Mercedes-Benz",
-  "BMW",
-  "Audi",
-  "Volkswagen",
-  "Ford",
-  "Peugeot",
-  "Citroen",
-  "Fiat",
-  "Hyundai",
-  "ГАЗ"
-].map((name) => ({
-  name,
-  slug: name
-    .toLowerCase()
-    .replace("mercedes-benz", "mercedes-benz")
-    .replace("volkswagen", "volkswagen")
-    .replace("citroen", "citroen")
-    .replace("газ", "gaz")
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/^-|-$/g, "")
-}));
+export type Brand = {
+  name: string;
+  slug: string;
+  icon?: string;
+  fallbackLabel?: string;
+};
+
+export const brands: Brand[] = [
+  { name: "Mercedes-Benz", slug: "mercedes-benz", fallbackLabel: "MB" },
+  { name: "BMW", slug: "bmw", icon: "siBmw" },
+  { name: "Audi", slug: "audi", icon: "siAudi" },
+  { name: "Volkswagen", slug: "volkswagen", icon: "siVolkswagen" },
+  { name: "Ford", slug: "ford", icon: "siFord" },
+  { name: "Peugeot", slug: "peugeot", icon: "siPeugeot" },
+  { name: "Citroen", slug: "citroen", icon: "siCitroen" },
+  { name: "Fiat", slug: "fiat", icon: "siFiat" },
+  { name: "Hyundai", slug: "hyundai", icon: "siHyundai" },
+  { name: "ГАЗ", slug: "gaz", fallbackLabel: "ГАЗ" }
+];
 
 export const facilityPhotos = [
   {

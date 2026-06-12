@@ -1,31 +1,9 @@
 import Link from "next/link";
-import { CONTACT, facilityPhotos, services } from "@/data/site";
+import { SiteHeader } from "@/components/site-header";
+import { facilityPhotos, services } from "@/data/site";
 
 export function InnerHeader() {
-  return (
-    <header className="border-b border-white/10 bg-[#08090b]/92">
-      <div className="mx-auto flex min-h-[76px] max-w-[1440px] flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center bg-[#9e1f36] text-sm font-black tracking-[-0.05em] text-white">
-            СА
-          </span>
-          <span>
-            <span className="block text-lg font-black tracking-[-0.04em] text-white">СТОАВТО</span>
-            <span className="block text-xs text-white/52">Автотехцентр полного цикла</span>
-          </span>
-        </Link>
-        <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/68">
-          <Link href="/uslugi" className="hover:text-white">Услуги</Link>
-          <Link href="/marki" className="hover:text-white">Марки</Link>
-          <Link href="/kommercheskiy-transport" className="hover:text-white">Коммерческий транспорт</Link>
-          <Link href="/raboty" className="hover:text-white">Наши работы</Link>
-        </nav>
-        <a href={CONTACT.phoneHref} className="text-sm font-bold text-white">
-          {CONTACT.phone}
-        </a>
-      </div>
-    </header>
-  );
+  return <SiteHeader />;
 }
 
 export function InnerHero({
@@ -38,7 +16,7 @@ export function InnerHero({
   text: string;
 }) {
   return (
-    <section className="border-b border-white/10 bg-[#0b0c10] px-5 py-16 sm:px-8 lg:px-10">
+    <section className="border-b border-white/10 bg-[#0b0c10] px-5 pb-16 pt-32 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
         <p className="mb-5 w-fit border border-white/14 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/64">
           {eyebrow}
