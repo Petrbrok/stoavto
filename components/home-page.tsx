@@ -34,28 +34,28 @@ const hotspots = [
   {
     id: "body",
     label: "Кузовной ремонт",
-    point: { x: 55, y:62 },
+    point: { x: 67, y:62 },
     href: "/uslugi/kuzovnoy-remont",
     description: "Дефектовка, восстановление геометрии и подготовка кузова к окраске."
   },
   {
     id: "paint",
     label: "Покраска",
-    point: { x: 76, y: 58 },
+    point: { x: 82, y: 58 },
     href: "/uslugi/pokraska-avto",
     description: "Локальная и полная окраска с подбором цвета и контролем результата."
   },
   {
     id: "diagnostics",
     label: "Диагностика",
-    point: { x: 89, y: 53 },
+    point: { x: 92, y: 55.5 },
     href: "/uslugi/diagnostika",
     description: "Компьютерная проверка, осмотр систем и понятный план работ."
   },
   {
     id: "alignment",
     label: "Развал-схождение",
-    point: { x: 65, y: 70 },
+    point: { x: 73.7, y: 71 },
     href: "/uslugi/razval-shozhdenie",
     description: "Контроль геометрии колес после ремонта и обслуживания."
   },
