@@ -95,7 +95,7 @@ export function AppointmentModal({
                   type="submit"
                   className="bg-[#9e1f36] px-6 py-3 text-sm font-extrabold text-white transition hover:bg-[#b72b43] sm:py-3.5"
                 >
-                  Записаться на ремонт
+                  Записаться на удобное время
                 </button>
               </form>
             )}

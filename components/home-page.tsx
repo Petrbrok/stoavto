@@ -99,7 +99,7 @@ export function HomePage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
-      <SiteHeader onLead={openLead} />
+      <SiteHeader onAppointment={openAppointment} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
         <div className="absolute inset-y-0 right-[5vw] hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
           <Image
@@ -377,8 +377,8 @@ function PriceCalculator({ onLead }: { onLead: () => void }) {
             <Image
               src="/images/stoavto-logo-transparent.png"
               alt="СТОАВТО"
-              width={1371}
-              height={895}
+              width={1759}
+              height={306}
               sizes="(min-width: 1024px) 420px, 88vw"
               className="h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.34)]"
             />

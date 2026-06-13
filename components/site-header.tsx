@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
-import { LeadFormModal } from "@/components/lead-form-modal";
+import { AppointmentModal } from "@/components/appointment-modal";
 
 const staticLinks = [
   { label: "Коммерческий транспорт", href: "/kommercheskiy-transport" },
@@ -16,13 +16,13 @@ const staticLinks = [
 
 type MenuKey = "services" | "brands";
 
-export function SiteHeader({ onLead }: { onLead?: () => void }) {
+export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<MenuKey | null>("services");
-  const [fallbackLeadOpen, setFallbackLeadOpen] = useState(false);
+  const [fallbackAppointmentOpen, setFallbackAppointmentOpen] = useState(false);
 
-  const lead = onLead ?? (() => setFallbackLeadOpen(true));
+  const appointment = onAppointment ?? (() => setFallbackAppointmentOpen(true));
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -49,14 +49,14 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
             <Image
               src="/images/stoavto-logo-transparent.png"
               alt="СТОАВТО"
-              width={1371}
-              height={895}
+              width={1759}
+              height={306}
               priority
-              className="h-14 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.22)]"
+              className="h-12 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.22)]"
             />
           </Link>
 
-          <nav className="hidden items-center gap-5 text-sm font-bold text-white xl:flex">
+          <nav className="ml-4 hidden items-center gap-5 text-sm font-bold text-white xl:flex 2xl:ml-6">
             <DropdownMenu
               label="Услуги"
               active={openMenu === "services"}
@@ -99,10 +99,10 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
             </div>
             <button
               type="button"
-              onClick={lead}
-              className="min-h-12 whitespace-nowrap bg-white px-6 py-3 text-sm font-extrabold text-[#111318] transition duration-300 hover:bg-[#f4d9de] active:translate-y-px"
+              onClick={appointment}
+              className="min-h-12 whitespace-nowrap bg-[#9e1f36] px-5 py-3 text-sm font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px"
             >
-              Оставить заявку
+              Записаться на удобное время
             </button>
           </div>
 
@@ -201,11 +201,11 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
                   type="button"
                   onClick={() => {
                     closeMobile();
-                    lead();
+                    appointment();
                   }}
                   className="mt-5 w-full bg-[#9e1f36] px-5 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
                 >
-                  Оставить заявку
+                  Записаться на удобное время
                 </button>
               </div>
             </motion.aside>
@@ -213,7 +213,9 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
         )}
       </AnimatePresence>
 
-      {!onLead && <LeadFormModal open={fallbackLeadOpen} onClose={() => setFallbackLeadOpen(false)} />}
+      {!onAppointment && (
+        <AppointmentModal open={fallbackAppointmentOpen} onClose={() => setFallbackAppointmentOpen(false)} />
+      )}
     </>
   );
 }
