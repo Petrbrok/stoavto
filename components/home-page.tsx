@@ -100,7 +100,7 @@ export function HomePage() {
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
       <SiteHeader onLead={openLead} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
-        <div className="absolute inset-y-0 right-0 hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
+        <div className="absolute inset-y-0 right-[5vw] hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
           <HeroVehicleAnimation className="h-full w-full object-contain object-right-bottom" />
           <ServiceHotspots onCalculate={scrollToCalculator} />
         </div>
@@ -305,7 +305,7 @@ function MobileHeroImage() {
   return (
     <section className="border-b border-white/10 bg-[#08090b] px-5 pb-8 md:hidden">
       <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden border border-white/10">
-        <HeroVehicleAnimation className="h-full w-full object-cover object-[68%_50%]" />
+        <HeroVehicleAnimation className="h-full w-full object-cover object-[58%_50%]" />
       </div>
     </section>
   );
