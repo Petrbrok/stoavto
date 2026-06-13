@@ -9,6 +9,7 @@
   --line: rgba(255, 255, 255, 0.12);
   --burgundy: #9e1f36;
   --burgundy-soft: #c43a52;
+  --radius-ui: 8px;
 }
 
 * {
@@ -28,15 +29,21 @@ body {
   font-family: var(--font-manrope), Arial, sans-serif;
 }
 
+.font-display {
+  font-family: var(--font-unbounded), var(--font-manrope), Arial, sans-serif;
+}
+
 button,
 input,
 select,
 textarea {
   font: inherit;
+  border-radius: var(--radius-ui);
 }
 
 button {
   cursor: pointer;
+  border-radius: var(--radius-ui);
 }
 
 ::selection {

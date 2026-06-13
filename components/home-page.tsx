@@ -116,21 +116,21 @@ export function HomePage() {
 
         <div className="pointer-events-none relative z-20 mx-auto flex max-w-[1440px] items-end px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:items-center md:pb-16 lg:px-10">
           <motion.div {...fadeUp} className="pointer-events-auto max-w-[920px] pb-6 md:pb-0">
-            <p className="mb-5 w-fit border border-white/14 bg-white/[0.04] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72 backdrop-blur-md">
+            <p className="mb-5 w-fit rounded-lg border border-white/18 bg-white/[0.06] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
               СТОАВТО / полный цикл
             </p>
-            <h1 className="max-w-[900px] text-[clamp(34px,5.35vw,76px)] font-black uppercase leading-[0.94] tracking-[-0.045em] text-white">
+            <h1 className="font-display max-w-[900px] text-[clamp(34px,5.1vw,72px)] font-black uppercase leading-[0.96] text-white">
               Полный цикл
               <br />
               ремонта авто
               <br />
               <span className="whitespace-nowrap">
-                и <span className="text-[#c43a52]">коммерческого</span>
+                и <span className="text-[#f09aac] drop-shadow-[0_0_28px_rgba(196,58,82,0.35)]">коммерческого</span>
               </span>
               <br />
               транспорта
             </h1>
-            <p className="mt-7 max-w-[620px] text-base leading-7 text-white/72 sm:text-lg">
+            <p className="mt-7 max-w-[620px] text-base leading-7 text-white sm:text-lg">
               Кузовной ремонт, покраска, детейлинг, диагностика, развал-схождение и слесарные работы в одном автотехцентре.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -141,7 +141,7 @@ export function HomePage() {
                 Записаться на ремонт
               </ActionButton>
             </div>
-            <div className="mt-8 grid max-w-[680px] grid-cols-1 gap-3 text-sm text-white/72 sm:grid-cols-2">
+            <div className="mt-8 grid max-w-[680px] grid-cols-1 gap-3 text-sm font-semibold text-white sm:grid-cols-2">
               {heroBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <span className="mt-0.5 text-[#c43a52]">✓</span>
@@ -235,15 +235,15 @@ function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.96 }}
             transition={{ duration: 0.22 }}
-            className="pointer-events-auto absolute bottom-14 right-10 z-40 w-[300px] border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"
+            className="pointer-events-auto absolute bottom-14 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"
           >
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">Направление работ</p>
             <h3 className="mt-2 text-base font-black text-white">{activeSpot.label}</h3>
-            <p className="mt-2 text-sm leading-5 text-white/62">{activeSpot.description}</p>
+            <p className="mt-2 text-sm leading-5 text-white/82">{activeSpot.description}</p>
             <div className="mt-4 flex gap-2">
               <Link
                 href={activeSpot.href}
-                className="border border-white/12 px-3.5 py-2.5 text-xs font-bold text-white/74 transition hover:border-[#c43a52] hover:text-white"
+                className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]"
               >
                 Подробнее
               </Link>
@@ -269,12 +269,12 @@ function MobilePriceCards() {
         {hotspots.map((spot) => (
           <div
             key={spot.id}
-            className="border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12))] p-4"
+            className="rounded-lg border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12))] p-4"
           >
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h3 className="text-base font-black text-white">{spot.label}</h3>
-                <p className="mt-1 text-xs leading-5 text-white/54">{spot.description}</p>
+                <p className="mt-1 text-xs leading-5 text-white/82">{spot.description}</p>
               </div>
               <Link href={spot.href} className="shrink-0 text-xs font-black uppercase tracking-[0.12em] text-[#f09aac]">
                 Подробнее
@@ -290,7 +290,7 @@ function MobilePriceCards() {
 function MobileHeroImage() {
   return (
     <section className="border-b border-white/10 bg-[#08090b] px-5 pb-8 md:hidden">
-      <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden border border-white/10">
+      <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden rounded-lg border border-white/10">
         <Image
           src="/images/hero-mobile-stoavto.png"
           alt="СТОАВТО: легковой автомобиль и микроавтобус"
@@ -306,9 +306,9 @@ function MobileHeroImage() {
 function AdvantagesBar() {
   return (
     <section className="border-b border-white/10 bg-[#0b0c10] px-5 py-5 sm:px-8 lg:px-10">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 divide-y divide-white/10 border border-white/10 bg-white/[0.025] md:grid-cols-5 md:divide-x md:divide-y-0">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 overflow-hidden rounded-lg border border-white/12 bg-white/[0.04] md:grid-cols-5 md:divide-x md:divide-white/10">
         {advantages.map((item) => (
-          <div key={item} className="px-5 py-5 text-sm font-bold text-white/82">
+          <div key={item} className="border-b border-white/10 px-5 py-5 text-sm font-bold text-white last:border-b-0 md:border-b-0">
             {item}
           </div>
         ))}
@@ -321,18 +321,18 @@ function BrandLogos() {
   return (
     <section className="bg-[#0b0c10] px-5 py-16 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
-        <h2 className="max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">
+        <h2 className="font-display max-w-2xl text-3xl font-black text-white sm:text-5xl">
           Обслуживаем популярные марки
         </h2>
-        <div className="mt-9 grid grid-cols-2 border-l border-t border-white/10 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-9 grid overflow-hidden rounded-lg border border-white/10 sm:grid-cols-3 lg:grid-cols-5">
           {brands.map((brand) => (
             <Link
               key={brand.slug}
               href={`/marki/${brand.slug}`}
-              className="group flex h-28 flex-col items-center justify-center gap-3 border-b border-r border-white/10 bg-white/[0.018] px-4 text-center text-white/68 transition hover:bg-white/[0.045] hover:text-white"
+              className="group flex h-28 flex-col items-center justify-center gap-3 border-b border-r border-white/10 bg-white/[0.035] px-4 text-center text-white transition hover:bg-white/[0.065]"
             >
               <BrandMark brand={brand} />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-white/42 transition group-hover:text-white/70">
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-white/82 transition group-hover:text-white">
                 {brand.name}
               </span>
             </Link>
@@ -364,65 +364,75 @@ function PriceCalculator({ onLead }: { onLead: () => void }) {
     <section id="price-calculator" className="scroll-mt-28 border-t border-white/10 bg-[#08090b] px-5 py-18 sm:px-8 lg:px-10">
       <div className="mx-auto grid max-w-[1440px] gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
-          <p className="w-fit border border-white/14 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/56">
+          <p className="w-fit rounded-lg border border-white/18 bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white">
             Предварительный расчёт
           </p>
-          <h2 className="mt-5 max-w-2xl text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">
+          <h2 className="font-display mt-5 max-w-2xl text-3xl font-black text-white sm:text-5xl">
             Узнайте порядок цены до визита в техцентр
           </h2>
-          <p className="mt-5 max-w-xl text-base leading-7 text-white/62">
+          <p className="mt-5 max-w-xl text-base leading-7 text-white">
             Калькулятор даёт ориентир. Точная стоимость фиксируется после осмотра, дефектовки и согласования сметы.
           </p>
+          <div className="mt-8 max-w-[560px]">
+            <Image
+              src="/images/stoavto-logo-transparent.png"
+              alt="СТОАВТО"
+              width={912}
+              height={560}
+              sizes="(min-width: 1024px) 420px, 88vw"
+              className="h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.34)]"
+            />
+          </div>
         </div>
 
-        <div className="border border-white/10 bg-white/[0.025] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:p-7">
+        <div className="rounded-lg border border-white/12 bg-white/[0.04] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:p-7">
           <div className="grid gap-5 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-bold text-white/78">
+            <label className="grid gap-2 text-sm font-bold text-white">
               Тип транспорта
-              <select value={transport} onChange={(event) => setTransport(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+              <select value={transport} onChange={(event) => setTransport(event.target.value)} className="border border-white/16 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
                 <option value="car">Легковой автомобиль</option>
                 <option value="van">Микроавтобус / фургон</option>
                 <option value="commercial">Коммерческий транспорт</option>
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-bold text-white/78">
+            <label className="grid gap-2 text-sm font-bold text-white">
               Услуга
-              <select value={service} onChange={(event) => setService(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+              <select value={service} onChange={(event) => setService(event.target.value)} className="border border-white/16 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
                 {servicePrices.map((item) => (
                   <option key={item.value} value={item.value}>{item.label}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-bold text-white/78">
+            <label className="grid gap-2 text-sm font-bold text-white">
               Объём работ
-              <select value={size} onChange={(event) => setSize(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]">
+              <select value={size} onChange={(event) => setSize(event.target.value)} className="border border-white/16 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
                 <option value="small">Небольшой</option>
                 <option value="medium">Средний</option>
                 <option value="large">Крупный</option>
               </select>
             </label>
-            <div className="grid gap-3 border border-white/10 bg-black/16 p-4">
-              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+            <div className="grid gap-3 rounded-lg border border-white/12 bg-black/20 p-4">
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white">
                 Нужна покраска
                 <input type="checkbox" checked={paint} onChange={(event) => setPaint(event.target.checked)} />
               </label>
-              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white">
                 Срочно
                 <input type="checkbox" checked={urgent} onChange={(event) => setUrgent(event.target.checked)} />
               </label>
-              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white/78">
+              <label className="flex items-center justify-between gap-4 text-sm font-bold text-white">
                 Фотоотчёт
                 <input type="checkbox" checked={report} onChange={(event) => setReport(event.target.checked)} />
               </label>
             </div>
           </div>
 
-          <div className="mt-6 border border-[#c43a52]/35 bg-[#9e1f36]/12 p-5">
-            <p className="text-sm font-bold uppercase tracking-[0.14em] text-white/52">Примерная стоимость</p>
-            <p className="mt-2 text-4xl font-black tracking-[-0.05em] text-white">
+          <div className="mt-6 rounded-lg border border-[#c43a52]/45 bg-[#9e1f36]/14 p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-white/82">Примерная стоимость</p>
+            <p className="font-display mt-2 text-4xl font-black text-white">
               {formatRub(low)} - {formatRub(high)}
             </p>
-            <p className="mt-3 text-sm leading-6 text-white/62">
+            <p className="mt-3 text-sm leading-6 text-white/86">
               Ориентировочный срок: {selected.days}. Включаем дефектовку, согласование работ и понятный список этапов.
             </p>
             <button
@@ -452,9 +462,9 @@ function QualityIdeas({ onAppointment }: { onAppointment: () => void }) {
       <div className="mx-auto max-w-[1440px]">
         <div className="grid gap-5 md:grid-cols-4">
           {ideas.map(([title, text]) => (
-            <article key={title} className="border border-white/10 bg-white/[0.025] p-5">
-              <h3 className="text-lg font-black tracking-[-0.03em] text-white">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/58">{text}</p>
+            <article key={title} className="rounded-lg border border-white/12 bg-white/[0.04] p-5">
+              <h3 className="font-display text-lg font-black text-white">{title}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/82">{text}</p>
             </article>
           ))}
         </div>
@@ -492,7 +502,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
   }
 
   return (
-    <span className="grid h-12 min-w-16 place-items-center border border-white/14 px-4 text-base font-black tracking-[-0.04em] text-white/82 transition group-hover:border-[#c43a52]/60 group-hover:text-white">
+    <span className="grid h-12 min-w-16 place-items-center rounded-lg border border-white/14 px-4 text-base font-black tracking-[-0.04em] text-white transition group-hover:border-[#c43a52]/60">
       {brand.fallbackLabel ?? brand.name}
     </span>
   );
@@ -503,10 +513,10 @@ function FacilitySections() {
     <section className="border-t border-white/10 bg-[#08090b] px-5 py-18 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
         <div className="max-w-3xl">
-          <h2 className="text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">
+          <h2 className="font-display text-3xl font-black text-white sm:text-5xl">
             Места под реальные фотографии мощностей автотехцентра
           </h2>
-          <p className="mt-5 text-base leading-7 text-white/62">
+          <p className="mt-5 text-base leading-7 text-white">
             Блоки подготовлены под крупные фото компании: посты, оборудование, процесс и выполненные работы.
           </p>
         </div>
@@ -514,20 +524,20 @@ function FacilitySections() {
           {facilityPhotos.map((item, index) => (
             <article
               key={item.title}
-              className={`group overflow-hidden border border-white/10 bg-white/[0.025] ${
+              className={`group overflow-hidden rounded-lg border border-white/12 bg-white/[0.04] ${
                 index === 0 || index === 2 ? "md:col-span-2" : ""
               }`}
             >
               <div className="relative min-h-[250px] overflow-hidden bg-[#14161c]">
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12)_42%,rgba(255,255,255,0.02))]" />
                 <div className="absolute inset-x-6 bottom-6 h-px bg-white/16" />
-                <span className="absolute left-6 top-6 border border-white/12 bg-black/28 px-3 py-1 text-xs font-bold text-white/64 backdrop-blur">
+                <span className="absolute left-6 top-6 rounded-lg border border-white/14 bg-black/32 px-3 py-1 text-xs font-bold text-white backdrop-blur">
                   Фото компании
                 </span>
               </div>
               <div className="p-6">
-                <h3 className="text-lg font-black tracking-[-0.03em] text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/58">{item.caption}</p>
+                <h3 className="font-display text-lg font-black text-white">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-white/82">{item.caption}</p>
               </div>
             </article>
           ))}

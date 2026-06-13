@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Unbounded } from "next/font/google";
 import { SITE_URL } from "@/data/site";
 import "./globals.css";
 
@@ -7,6 +7,13 @@ const manrope = Manrope({
   subsets: ["cyrillic", "latin"],
   display: "swap",
   variable: "--font-manrope"
+});
+
+const unbounded = Unbounded({
+  subsets: ["cyrillic", "latin"],
+  display: "swap",
+  variable: "--font-unbounded",
+  weight: ["600", "700", "800", "900"]
 });
 
 export const metadata: Metadata = {
@@ -45,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={`${manrope.variable} antialiased`}>{children}</body>
+      <body className={`${manrope.variable} ${unbounded.variable} antialiased`}>{children}</body>
     </html>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
@@ -44,17 +45,18 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
     <>
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#08090b]/78 backdrop-blur-xl">
         <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
-          <Link href="/" className="flex shrink-0 items-center gap-3" onClick={closeMobile}>
-            <span className="grid h-11 w-11 place-items-center bg-[#9e1f36] text-sm font-black tracking-[-0.05em] text-white">
-              СА
-            </span>
-            <span>
-              <span className="block text-lg font-black tracking-[-0.04em] text-white">СТОАВТО</span>
-              <span className="hidden text-xs text-white/52 sm:block">Автотехцентр полного цикла</span>
-            </span>
+          <Link href="/" className="flex shrink-0 items-center" onClick={closeMobile} aria-label="СТОАВТО">
+            <Image
+              src="/images/stoavto-logo-transparent.png"
+              alt="СТОАВТО"
+              width={156}
+              height={96}
+              priority
+              className="h-14 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.22)]"
+            />
           </Link>
 
-          <nav className="hidden items-center gap-5 text-sm font-medium text-white/68 xl:flex">
+          <nav className="hidden items-center gap-5 text-sm font-bold text-white xl:flex">
             <DropdownMenu
               label="Услуги"
               active={openMenu === "services"}
@@ -93,7 +95,7 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
               <a href={CONTACT.phoneHref} className="block text-sm font-bold text-white">
                 {CONTACT.phone}
               </a>
-              <span className="text-xs text-white/52">{CONTACT.hours}</span>
+              <span className="text-xs text-white/78">{CONTACT.hours}</span>
             </div>
             <button
               type="button"
@@ -107,7 +109,7 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
           <button
             type="button"
             onClick={() => setMobileOpen((value) => !value)}
-            className="grid h-12 w-12 place-items-center border border-white/14 text-white transition hover:border-[#c43a52] xl:hidden"
+            className="grid h-12 w-12 place-items-center border border-white/20 text-white transition hover:border-[#c43a52] xl:hidden"
             aria-label={mobileOpen ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={mobileOpen}
           >
@@ -183,18 +185,18 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
                     key={item.href}
                     href={item.href}
                     onClick={closeMobile}
-                    className="border border-white/10 bg-white/[0.025] px-4 py-4 text-base font-bold text-white/82"
+                    className="rounded-lg border border-white/12 bg-white/[0.04] px-4 py-4 text-base font-bold text-white transition hover:border-[#c43a52]/60"
                   >
                     {item.label}
                   </Link>
                 ))}
               </div>
 
-              <div className="mt-6 border border-white/10 bg-white/[0.025] p-5">
+              <div className="mt-6 rounded-lg border border-white/12 bg-white/[0.04] p-5">
                 <a href={CONTACT.phoneHref} className="block text-lg font-black text-white">
                   {CONTACT.phone}
                 </a>
-                <p className="mt-1 text-sm text-white/52">{CONTACT.hours}</p>
+                <p className="mt-1 text-sm text-white/78">{CONTACT.hours}</p>
                 <button
                   type="button"
                   onClick={() => {
@@ -248,13 +250,13 @@ function DropdownMenu({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-[68px] grid min-w-72 gap-1 border border-white/10 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            className="absolute left-0 top-[68px] grid min-w-72 gap-1 rounded-lg border border-white/12 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl"
           >
             {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-4 py-3 text-sm font-bold text-white/70 transition hover:bg-white/[0.055] hover:text-white"
+                className="rounded-md px-4 py-3 text-sm font-bold text-white transition hover:bg-white/[0.07]"
                 onClick={onClose}
               >
                 {item.label}
@@ -281,7 +283,7 @@ function MobileAccordion({
   onNavigate: () => void;
 }) {
   return (
-    <div className="border border-white/10 bg-white/[0.025]">
+    <div className="overflow-hidden rounded-lg border border-white/12 bg-white/[0.04]">
       <button
         type="button"
         className="flex w-full items-center justify-between px-4 py-4 text-left text-base font-black text-white"
@@ -306,7 +308,7 @@ function MobileAccordion({
                   key={item.href}
                   href={item.href}
                   onClick={onNavigate}
-                  className="px-3 py-3 text-sm font-bold text-white/64"
+                  className="rounded-md px-3 py-3 text-sm font-bold text-white/86 transition hover:bg-white/[0.06] hover:text-white"
                 >
                   {item.label}
                 </Link>
