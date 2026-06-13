@@ -3,7 +3,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://stoavto.ver
 export const CONTACT = {
   phone: "+7 (900) 000-00-00",
   phoneHref: "tel:+79000000000",
-  hours: "ежедневно с 10 до 9 вечера"
+  hours: "ежедневно с 10:00 до 21:00"
 };
 
 export const services = [
