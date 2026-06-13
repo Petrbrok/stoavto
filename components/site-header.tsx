@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
 
@@ -89,6 +89,8 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<MenuKey | null>("services");
   const [fallbackAppointmentOpen, setFallbackAppointmentOpen] = useState(false);
+  const [bookingChoiceOpen, setBookingChoiceOpen] = useState(false);
+  const [callbackOpen, setCallbackOpen] = useState(false);
 
   const appointment = onAppointment ?? (() => setFallbackAppointmentOpen(true));
 
@@ -168,7 +170,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
             </div>
             <button
               type="button"
-              onClick={appointment}
+              onClick={() => setBookingChoiceOpen(true)}
               className="min-h-11 whitespace-nowrap bg-[#9e1f36] px-3.5 py-3 text-[12px] font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px 2xl:px-5 2xl:text-[13px]"
             >
               Записаться на удобное время
@@ -273,7 +275,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
                   type="button"
                   onClick={() => {
                     closeMobile();
-                    appointment();
+                    setBookingChoiceOpen(true);
                   }}
                   className="mt-5 w-full bg-[#9e1f36] px-5 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
                 >
@@ -285,10 +287,181 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
         )}
       </AnimatePresence>
 
+      <BookingChoiceModal
+        open={bookingChoiceOpen}
+        onClose={() => setBookingChoiceOpen(false)}
+        onAppointment={() => {
+          setBookingChoiceOpen(false);
+          appointment();
+        }}
+        onCallback={() => {
+          setBookingChoiceOpen(false);
+          setCallbackOpen(true);
+        }}
+      />
+      <CallbackModal open={callbackOpen} onClose={() => setCallbackOpen(false)} />
+
       {!onAppointment && (
         <AppointmentModal open={fallbackAppointmentOpen} onClose={() => setFallbackAppointmentOpen(false)} />
       )}
     </>
+  );
+}
+
+function BookingChoiceModal({
+  open,
+  onClose,
+  onAppointment,
+  onCallback
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAppointment: () => void;
+  onCallback: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm sm:place-items-center sm:p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 22, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 22, scale: 0.98 }}
+            transition={{ duration: 0.24 }}
+            className="w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">
+                  Онлайн-консультация
+                </p>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-white">Что удобнее?</h2>
+                <p className="mt-2 text-sm leading-6 text-white/64">
+                  Можно выбрать точную дату и время или оставить контакты для обратного звонка.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="grid h-10 w-10 shrink-0 place-items-center border border-white/12 text-white/70 transition hover:text-white"
+                aria-label="Закрыть"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={onAppointment}
+                className="rounded-lg border border-[#c43a52]/50 bg-[#9e1f36] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+              >
+                Записаться на удобное время
+                <span className="mt-2 block text-xs font-semibold leading-5 text-white/72">Дата и время в форме записи.</span>
+              </button>
+              <button
+                type="button"
+                onClick={onCallback}
+                className="rounded-lg border border-white/14 bg-white/[0.05] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:border-[#c43a52]/60 hover:bg-white/[0.08]"
+              >
+                Получить обратный звонок
+                <span className="mt-2 block text-xs font-semibold leading-5 text-white/72">Только имя и телефон.</span>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [sent, setSent] = useState(false);
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSent(true);
+  }
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm sm:place-items-center sm:p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 22, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 22, scale: 0.98 }}
+            transition={{ duration: 0.24 }}
+            className="w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">
+                  Обратный звонок
+                </p>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-white">Получить онлайн-консультацию</h2>
+                <p className="mt-2 text-sm leading-6 text-white/64">
+                  Оставьте имя и номер. Менеджер перезвонит и подскажет по ремонту.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="grid h-10 w-10 shrink-0 place-items-center border border-white/12 text-white/70 transition hover:text-white"
+                aria-label="Закрыть"
+              >
+                ×
+              </button>
+            </div>
+
+            {sent ? (
+              <div className="mt-6 rounded-lg border border-[#c43a52]/35 bg-[#9e1f36]/12 p-5">
+                <p className="text-lg font-black text-white">Заявка на звонок отправлена.</p>
+                <p className="mt-2 text-sm leading-6 text-white/64">Мы свяжемся с вами в рабочее время.</p>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} className="mt-6 grid gap-4">
+                <label className="grid gap-2 text-sm font-bold text-white/80">
+                  Имя
+                  <input
+                    name="name"
+                    placeholder="Ваше имя"
+                    className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition placeholder:text-white/34 focus:border-[#c43a52]"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-bold text-white/80">
+                  Телефон
+                  <input
+                    name="phone"
+                    placeholder="+7"
+                    className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition placeholder:text-white/34 focus:border-[#c43a52]"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="bg-[#9e1f36] px-5 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+                >
+                  Заказать обратный звонок
+                </button>
+              </form>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

@@ -114,8 +114,12 @@ export function HomePage() {
         </div>
         <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
 
-        <div className="pointer-events-none relative z-20 mx-auto flex max-w-[1440px] items-end px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:items-center md:pb-16 lg:px-10">
-          <motion.div {...fadeUp} className="pointer-events-auto max-w-[920px] pb-6 md:pb-0">
+        <div className="pointer-events-none relative z-20 px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:pb-16 lg:px-10">
+          <motion.div
+            {...fadeUp}
+            className="pointer-events-auto mx-auto flex max-w-[1440px] items-end pb-6 md:min-h-[calc(100dvh-184px)] md:items-center md:pb-0"
+          >
+            <div className="max-w-[920px]">
             <p className="mb-5 w-fit rounded-lg border border-white/18 bg-white/[0.06] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
               СТОАВТО / полный цикл
             </p>
@@ -148,6 +152,7 @@ export function HomePage() {
                   <span>{benefit}</span>
                 </div>
               ))}
+            </div>
             </div>
           </motion.div>
         </div>
