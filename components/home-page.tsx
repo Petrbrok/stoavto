@@ -101,13 +101,13 @@ export function HomePage() {
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
       <SiteHeader onAppointment={openAppointment} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
-        <div className="absolute inset-y-0 right-[5vw] hidden w-[82vw] max-w-[1280px] md:block lg:w-[78vw]">
+        <div className="absolute inset-x-0 inset-y-0 hidden max-w-none md:block">
           <Image
             src="/images/hero-desktop-stoavto.png"
             alt="СТОАВТО: легковой автомобиль и микроавтобус в современном автотехцентре"
             fill
             priority
-            sizes="(min-width: 1024px) 78vw, 82vw"
+            sizes="100vw"
             className="object-contain object-right-bottom"
           />
           <ServiceHotspots onCalculate={scrollToCalculator} />

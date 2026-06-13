@@ -112,7 +112,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
   return (
     <>
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#08090b]/78 backdrop-blur-xl">
-        <div className="mx-auto flex h-[68px] max-w-[1440px] items-center gap-4 px-3 sm:px-6 lg:px-8 xl:h-[72px] xl:px-10">
+        <div className="mx-auto flex h-[68px] w-full max-w-none items-center gap-3 px-3 sm:px-6 lg:px-8 xl:h-[72px] xl:px-4 2xl:px-5">
           <Link href="/" className="flex shrink-0 items-center" onClick={closeMobile} aria-label="СТОАВТО">
             <Image
               src="/images/stoavto-logo-transparent.png"
@@ -120,11 +120,11 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               width={1759}
               height={306}
               priority
-              className="h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.24)] sm:h-8 xl:h-10"
+              className="h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.24)] sm:h-8 xl:h-9 2xl:h-10"
             />
           </Link>
 
-          <nav className="ml-2 hidden min-w-0 flex-1 items-center justify-center gap-4 text-[13px] font-bold text-white xl:flex 2xl:gap-5">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-3 text-[12px] font-bold text-white xl:flex 2xl:gap-5 2xl:text-[13px]">
             <DropdownMenu
               label="Услуги"
               active={openMenu === "services"}
@@ -158,10 +158,10 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
             ))}
           </nav>
 
-          <div className="ml-auto hidden shrink-0 items-center gap-3 xl:flex">
+          <div className="ml-auto hidden shrink-0 items-center gap-2 xl:flex 2xl:gap-3">
             <OpenStatusBadge />
             <div className="min-w-max text-right">
-              <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-sm font-bold text-white">
+              <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-[13px] font-bold text-white 2xl:text-sm">
                 {CONTACT.phone}
               </a>
               <span className="text-xs text-white/78">{CONTACT.hours}</span>
@@ -169,7 +169,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
             <button
               type="button"
               onClick={appointment}
-              className="min-h-11 whitespace-nowrap bg-[#9e1f36] px-4 py-3 text-[13px] font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px 2xl:px-5"
+              className="min-h-11 whitespace-nowrap bg-[#9e1f36] px-3.5 py-3 text-[12px] font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px 2xl:px-5 2xl:text-[13px]"
             >
               Записаться на удобное время
             </button>
