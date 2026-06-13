@@ -119,13 +119,13 @@ export function HomePage() {
             <p className="mb-5 w-fit rounded-lg border border-white/18 bg-white/[0.06] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
               СТОАВТО / полный цикл
             </p>
-            <h1 className="font-display max-w-[900px] text-[clamp(34px,5.1vw,72px)] font-black uppercase leading-[0.96] text-white">
+            <h1 className="font-display max-w-[840px] text-[clamp(31px,4.65vw,66px)] font-black uppercase leading-[0.98] text-white">
               Полный цикл
               <br />
               ремонта авто
               <br />
               <span className="whitespace-nowrap">
-                и <span className="text-[#f09aac] drop-shadow-[0_0_28px_rgba(196,58,82,0.35)]">коммерческого</span>
+                и <span className="text-[#9e1f36] drop-shadow-[0_0_24px_rgba(158,31,54,0.32)]">коммерческого</span>
               </span>
               <br />
               транспорта
@@ -377,8 +377,8 @@ function PriceCalculator({ onLead }: { onLead: () => void }) {
             <Image
               src="/images/stoavto-logo-transparent.png"
               alt="СТОАВТО"
-              width={912}
-              height={560}
+              width={1371}
+              height={895}
               sizes="(min-width: 1024px) 420px, 88vw"
               className="h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.34)]"
             />

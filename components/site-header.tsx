@@ -49,8 +49,8 @@ export function SiteHeader({ onLead }: { onLead?: () => void }) {
             <Image
               src="/images/stoavto-logo-transparent.png"
               alt="СТОАВТО"
-              width={156}
-              height={96}
+              width={1371}
+              height={895}
               priority
               className="h-14 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.22)]"
             />
