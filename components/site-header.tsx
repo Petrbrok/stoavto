@@ -7,6 +7,12 @@ import { useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
 
+type BusinessTime = { hour: number; minute: number };
+type MenuKey = "services" | "brands";
+
+const OPEN_FROM: BusinessTime = { hour: 10, minute: 0 };
+const OPEN_TO: BusinessTime = { hour: 21, minute: 0 };
+
 const staticLinks = [
   { label: "Коммерческий транспорт", href: "/kommercheskiy-transport" },
   { label: "Наши работы", href: "/raboty" },
@@ -14,7 +20,69 @@ const staticLinks = [
   { label: "Контакты", href: "/#contacts" }
 ];
 
-type MenuKey = "services" | "brands";
+function formatTime(hours: number, minutes: number) {
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function getOpenStatus(openFrom = OPEN_FROM, openTo = OPEN_TO) {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = openFrom.hour * 60 + openFrom.minute;
+  const closeMinutes = openTo.hour * 60 + openTo.minute;
+  const isOpen = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+
+  return {
+    isOpen,
+    label: isOpen
+      ? `Открыто до ${formatTime(openTo.hour, openTo.minute)}`
+      : `Откроемся в ${formatTime(openFrom.hour, openFrom.minute)}`
+  };
+}
+
+function useOpenStatus(openFrom = OPEN_FROM, openTo = OPEN_TO) {
+  const [status, setStatus] = useState(() => ({
+    isOpen: false,
+    label: `Откроемся в ${formatTime(openFrom.hour, openFrom.minute)}`
+  }));
+  const openFromHour = openFrom.hour;
+  const openFromMinute = openFrom.minute;
+  const openToHour = openTo.hour;
+  const openToMinute = openTo.minute;
+
+  useEffect(() => {
+    const currentOpenFrom = { hour: openFromHour, minute: openFromMinute };
+    const currentOpenTo = { hour: openToHour, minute: openToMinute };
+    const tick = () => setStatus(getOpenStatus(currentOpenFrom, currentOpenTo));
+    tick();
+    const id = window.setInterval(tick, 60_000);
+
+    return () => window.clearInterval(id);
+  }, [openFromHour, openFromMinute, openToHour, openToMinute]);
+
+  return status;
+}
+
+function OpenStatusBadge({
+  openFrom = OPEN_FROM,
+  openTo = OPEN_TO,
+  className = ""
+}: {
+  openFrom?: BusinessTime;
+  openTo?: BusinessTime;
+  className?: string;
+}) {
+  const status = useOpenStatus(openFrom, openTo);
+
+  return (
+    <span
+      className={["open-status", status.isOpen ? "is-open" : "is-closed", className].filter(Boolean).join(" ")}
+      aria-label={status.label}
+      title={status.label}
+    >
+      {status.label}
+    </span>
+  );
+}
 
 export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
@@ -44,7 +112,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
   return (
     <>
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#08090b]/78 backdrop-blur-xl">
-        <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
+        <div className="mx-auto flex h-[68px] max-w-[1440px] items-center gap-4 px-3 sm:px-6 lg:px-8 xl:h-[72px] xl:px-10">
           <Link href="/" className="flex shrink-0 items-center" onClick={closeMobile} aria-label="СТОАВТО">
             <Image
               src="/images/stoavto-logo-transparent.png"
@@ -52,11 +120,11 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               width={1759}
               height={306}
               priority
-              className="h-12 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.22)]"
+              className="h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.24)] sm:h-8 xl:h-10"
             />
           </Link>
 
-          <nav className="ml-4 hidden items-center gap-5 text-sm font-bold text-white xl:flex 2xl:ml-6">
+          <nav className="ml-2 hidden min-w-0 flex-1 items-center justify-center gap-4 text-[13px] font-bold text-white xl:flex 2xl:gap-5">
             <DropdownMenu
               label="Услуги"
               active={openMenu === "services"}
@@ -84,15 +152,16 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               ]}
             />
             {staticLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="transition hover:text-white">
+              <Link key={item.href} href={item.href} className="whitespace-nowrap transition hover:text-white">
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="ml-auto hidden items-center gap-5 lg:flex">
-            <div className="text-right">
-              <a href={CONTACT.phoneHref} className="block text-sm font-bold text-white">
+          <div className="ml-auto hidden shrink-0 items-center gap-3 xl:flex">
+            <OpenStatusBadge />
+            <div className="min-w-max text-right">
+              <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-sm font-bold text-white">
                 {CONTACT.phone}
               </a>
               <span className="text-xs text-white/78">{CONTACT.hours}</span>
@@ -100,37 +169,40 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
             <button
               type="button"
               onClick={appointment}
-              className="min-h-12 whitespace-nowrap bg-[#9e1f36] px-5 py-3 text-sm font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px"
+              className="min-h-11 whitespace-nowrap bg-[#9e1f36] px-4 py-3 text-[13px] font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px 2xl:px-5"
             >
               Записаться на удобное время
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setMobileOpen((value) => !value)}
-            className="grid h-12 w-12 place-items-center border border-white/20 text-white transition hover:border-[#c43a52] xl:hidden"
-            aria-label={mobileOpen ? "Закрыть меню" : "Открыть меню"}
-            aria-expanded={mobileOpen}
-          >
-            <span className="relative block h-5 w-6">
-              <span
-                className={`absolute left-0 top-0 h-0.5 w-6 bg-current transition ${
-                  mobileOpen ? "top-2 rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-2 h-0.5 w-6 bg-current transition ${
-                  mobileOpen ? "opacity-0" : ""
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-4 h-0.5 w-6 bg-current transition ${
-                  mobileOpen ? "top-2 -rotate-45" : ""
-                }`}
-              />
-            </span>
-          </button>
+          <div className="ml-auto flex shrink-0 items-center gap-2 xl:hidden">
+            <OpenStatusBadge className="header-open-status" />
+            <button
+              type="button"
+              onClick={() => setMobileOpen((value) => !value)}
+              className="grid h-11 w-11 place-items-center border border-white/20 text-white transition hover:border-[#c43a52]"
+              aria-label={mobileOpen ? "Закрыть меню" : "Открыть меню"}
+              aria-expanded={mobileOpen}
+            >
+              <span className="relative block h-5 w-6">
+                <span
+                  className={`absolute left-0 top-0 h-0.5 w-6 bg-current transition ${
+                    mobileOpen ? "top-2 rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 top-2 h-0.5 w-6 bg-current transition ${
+                    mobileOpen ? "opacity-0" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 top-4 h-0.5 w-6 bg-current transition ${
+                    mobileOpen ? "top-2 -rotate-45" : ""
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -147,7 +219,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               onClick={closeMobile}
             />
             <motion.aside
-              className="fixed bottom-0 right-0 top-[76px] z-50 w-full max-w-md overflow-y-auto border-l border-white/10 bg-[#0b0c10] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.58)] xl:hidden"
+              className="fixed bottom-0 right-0 top-[68px] z-50 w-full max-w-md overflow-y-auto border-l border-white/10 bg-[#0b0c10] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.58)] xl:hidden"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -193,7 +265,7 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               </div>
 
               <div className="mt-6 rounded-lg border border-white/12 bg-white/[0.04] p-5">
-                <a href={CONTACT.phoneHref} className="block text-lg font-black text-white">
+                <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-lg font-black text-white">
                   {CONTACT.phone}
                 </a>
                 <p className="mt-1 text-sm text-white/78">{CONTACT.hours}</p>
@@ -237,7 +309,7 @@ function DropdownMenu({
     <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
       <button
         type="button"
-        className="flex items-center gap-1 py-7 transition hover:text-white"
+        className="flex items-center gap-1 whitespace-nowrap py-6 transition hover:text-white"
         onClick={onOpen}
         onFocus={onOpen}
         aria-expanded={active}
@@ -252,7 +324,7 @@ function DropdownMenu({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-[68px] grid min-w-72 gap-1 rounded-lg border border-white/12 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            className="absolute left-0 top-[64px] grid min-w-72 gap-1 rounded-lg border border-white/12 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl"
           >
             {items.map((item) => (
               <Link
