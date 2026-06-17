@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as simpleIcons from "simple-icons";
 import { brands, facilityPhotos } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
@@ -30,18 +30,51 @@ const advantages = [
   "Гарантия на работы"
 ];
 
+const advantageLayouts = [
+  "md:col-span-2 md:row-span-2",
+  "md:col-span-2",
+  "md:col-span-2 md:row-span-2",
+  "md:col-span-3",
+  "md:col-span-3"
+];
+
+const hotspotLabelStyles = {
+  body: {
+    wrap: "right-2 top-1/2 -translate-y-1/2 flex-row-reverse",
+    line: "h-px w-5 bg-gradient-to-l from-white/72 to-white/18"
+  },
+  paint: {
+    wrap: "left-2 top-1/2 -translate-y-1/2",
+    line: "h-px w-5 bg-gradient-to-r from-white/72 to-white/18"
+  },
+  diagnostics: {
+    wrap: "right-2 top-1/2 -translate-y-1/2 flex-row-reverse",
+    line: "h-px w-4 bg-gradient-to-l from-white/72 to-white/18"
+  },
+  alignment: {
+    wrap: "bottom-4 left-1/2 -translate-x-1/2 flex-col-reverse",
+    line: "h-4 w-px bg-gradient-to-t from-white/72 to-white/18"
+  },
+  commercial: {
+    wrap: "left-1/2 top-4 -translate-x-1/2 flex-col",
+    line: "h-4 w-px bg-gradient-to-b from-white/72 to-white/18"
+  }
+} as const;
+
 const hotspots = [
   {
     id: "body",
     label: "Кузовной ремонт",
-    point: { x: 67, y:62 },
+    point: { x: 50, y:65 },
+    mobilePoint: { x: 21, y: 55 },
     href: "/uslugi/kuzovnoy-remont",
     description: "Дефектовка, восстановление геометрии и подготовка кузова к окраске."
   },
   {
     id: "paint",
     label: "Покраска",
-    point: { x: 82, y: 58 },
+    point: { x: 72, y: 58 },
+    mobilePoint: { x: 57, y: 47 },
     href: "/uslugi/pokraska-avto",
     description: "Локальная и полная окраска с подбором цвета и контролем результата."
   },
@@ -49,20 +82,23 @@ const hotspots = [
     id: "diagnostics",
     label: "Диагностика",
     point: { x: 92, y: 55.5 },
+    mobilePoint: { x: 85, y: 47 },
     href: "/uslugi/diagnostika",
     description: "Компьютерная проверка, осмотр систем и понятный план работ."
   },
   {
     id: "alignment",
     label: "Развал-схождение",
-    point: { x: 73.7, y: 71 },
+    point: { x: 60, y: 78 },
+    mobilePoint: { x: 35.5, y: 67 },
     href: "/uslugi/razval-shozhdenie",
     description: "Контроль геометрии колес после ремонта и обслуживания."
   },
   {
     id: "commercial",
     label: "Коммерческий транспорт",
-    point: { x: 81, y: 43 },
+    point: { x: 71, y: 34 },
+    mobilePoint: { x: 65, y: 32 },
     href: "/kommercheskiy-transport",
     description: "Отдельное направление для микроавтобусов, фургонов и рабочих авто."
   }
@@ -80,16 +116,6 @@ const servicePrices = [
 export function HomePage() {
   const [isLeadOpen, setIsLeadOpen] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
-  const reduceMotion = useReducedMotion();
-
-  const fadeUp = useMemo(
-    () => ({
-      initial: reduceMotion ? false : { opacity: 0, y: 18 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.75, ease: "easeOut" as const }
-    }),
-    [reduceMotion]
-  );
 
   const openLead = () => setIsLeadOpen(true);
   const openAppointment = () => setIsAppointmentOpen(true);
@@ -101,40 +127,39 @@ export function HomePage() {
     <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
       <SiteHeader onAppointment={openAppointment} />
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#08090b] md:min-h-[100dvh]">
-        <div className="absolute inset-x-0 inset-y-0 hidden max-w-none md:block">
+        <div className="absolute inset-0 hidden max-w-none md:block">
           <Image
-            src="/images/hero-desktop-stoavto.png"
+            src="/images/hero-industrial-stoavto.png"
             alt="СТОАВТО: легковой автомобиль и микроавтобус в современном автотехцентре"
             fill
             priority
             sizes="100vw"
-            className="object-contain object-right-bottom"
+            className="object-cover object-[63%_50%] md:object-center"
           />
-          <ServiceHotspots onCalculate={scrollToCalculator} />
         </div>
         <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
+        <ServiceHotspots onCalculate={scrollToCalculator} />
 
-        <div className="pointer-events-none relative z-20 px-5 pb-10 pt-28 sm:px-8 md:min-h-[100dvh] md:pb-16 lg:px-10">
-          <motion.div
-            {...fadeUp}
-            className="pointer-events-auto mx-auto flex max-w-[1440px] items-end pb-6 md:min-h-[calc(100dvh-184px)] md:items-center md:pb-0"
+        <div className="pointer-events-none relative z-20 flex px-5 pb-8 pt-28 sm:px-8 md:min-h-[100dvh] md:pb-16 lg:px-10">
+          <div
+            className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-start pb-4 md:items-center md:pb-0"
           >
-            <div className="max-w-[920px]">
+            <div className="max-w-[620px]">
             <p className="mb-5 w-fit rounded-lg border border-white/18 bg-white/[0.06] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
               СТОАВТО / полный цикл
             </p>
-            <h1 className="font-display max-w-[840px] text-[clamp(31px,4.65vw,66px)] font-black uppercase leading-[0.98] text-white">
+            <h1 className="font-display max-w-[620px] text-[clamp(24px,6.35vw,44px)] font-black uppercase leading-[1.04] text-white sm:text-[clamp(30px,5vw,48px)] lg:text-[clamp(38px,3.35vw,50px)]">
               Полный цикл
               <br />
               ремонта авто
               <br />
-              <span className="whitespace-nowrap">
+              <span className="md:whitespace-nowrap">
                 и <span className="text-[#9e1f36] drop-shadow-[0_0_24px_rgba(158,31,54,0.32)]">коммерческого</span>
               </span>
               <br />
               транспорта
             </h1>
-            <p className="mt-7 max-w-[620px] text-base leading-7 text-white sm:text-lg">
+            <p className="mt-6 max-w-[600px] text-base leading-7 text-white sm:text-lg">
               Кузовной ремонт, покраска, детейлинг, диагностика, развал-схождение и слесарные работы в одном автотехцентре.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -145,7 +170,7 @@ export function HomePage() {
                 Записаться на ремонт
               </ActionButton>
             </div>
-            <div className="mt-8 grid max-w-[680px] grid-cols-1 gap-3 text-sm font-semibold text-white sm:grid-cols-2">
+            <div className="mt-7 hidden max-w-[620px] grid-cols-1 gap-3 text-sm font-semibold text-white/92 sm:grid sm:grid-cols-2">
               {heroBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <span className="mt-0.5 text-[#c43a52]">✓</span>
@@ -154,12 +179,11 @@ export function HomePage() {
               ))}
             </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      <MobileHeroImage />
-      <MobilePriceCards />
+      <MobileHeroImage onCalculate={scrollToCalculator} />
       <AdvantagesBar />
       <BrandLogos />
       <PriceCalculator onLead={openLead} />
@@ -198,66 +222,174 @@ function ActionButton({
   );
 }
 
-function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
+function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () => void; mode?: "desktop" | "mobile" }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
-  const active = pinned ?? hovered;
+  const isMobile = mode === "mobile";
+  const hoverCloseTimer = useRef<number | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const active = isMobile ? pinned : hovered;
   const activeSpot = hotspots.find((spot) => spot.id === active);
 
+  const clearCloseTimer = () => {
+    if (hoverCloseTimer.current !== null) {
+      window.clearTimeout(hoverCloseTimer.current);
+      hoverCloseTimer.current = null;
+    }
+  };
+
+  const closeActive = () => {
+    clearCloseTimer();
+    setHovered(null);
+    setPinned(null);
+  };
+
+  const openSpot = (id: string) => {
+    if (isMobile) {
+      return;
+    }
+
+    clearCloseTimer();
+    setHovered(id);
+  };
+
+  const leaveSpot = (id: string) => {
+    if (isMobile) {
+      return;
+    }
+
+    clearCloseTimer();
+    hoverCloseTimer.current = window.setTimeout(() => {
+      setHovered((current) => (current === id ? null : current));
+      hoverCloseTimer.current = null;
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (isMobile || !activeSpot) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (cardRef.current && target && !cardRef.current.contains(target)) {
+        if (hoverCloseTimer.current !== null) {
+          window.clearTimeout(hoverCloseTimer.current);
+          hoverCloseTimer.current = null;
+        }
+        setHovered(null);
+        setPinned(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    return () => document.removeEventListener("pointerdown", handlePointerDown, true);
+  }, [activeSpot, isMobile]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverCloseTimer.current !== null) {
+        window.clearTimeout(hoverCloseTimer.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="pointer-events-none absolute inset-0 z-30 hidden md:block">
-      {hotspots.map((spot, index) => {
+    <div className={`pointer-events-none absolute inset-0 z-30 ${isMobile ? "block" : "hidden md:block"}`}>
+      {hotspots.map((spot) => {
         const isActive = active === spot.id;
+        const point = isMobile ? spot.mobilePoint : spot.point;
+        const labelStyle = hotspotLabelStyles[spot.id as keyof typeof hotspotLabelStyles];
 
         return (
-          <motion.button
+          <button
             key={spot.id}
             type="button"
-            className="pointer-events-auto absolute z-40 block h-5 w-5"
-            style={{ left: `${spot.point.x}%`, top: `${spot.point.y}%` }}
-            initial={{ opacity: 0, scale: 0.78 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.55 + index * 0.08, duration: 0.5 }}
-            onMouseEnter={() => setHovered(spot.id)}
-            onMouseLeave={() => setHovered(null)}
-            onClick={() => setPinned(pinned === spot.id ? null : spot.id)}
-            onFocus={() => setHovered(spot.id)}
-            onBlur={() => setHovered(null)}
+            className={`group pointer-events-auto absolute z-40 block h-3.5 w-3.5 !rounded-full border p-0 transition duration-300 active:scale-95 md:h-5 md:w-5 md:-translate-x-[3px] md:-translate-y-[3px] ${isActive ? "scale-110 border-white bg-white shadow-[0_0_30px_rgba(255,255,255,0.5)]" : "border-white/80 bg-[#c43a52] shadow-[0_0_20px_rgba(196,58,82,0.58)] hover:scale-110 hover:border-white hover:shadow-[0_0_28px_rgba(196,58,82,0.82)]"}`}
+            style={{ left: `${point.x}%`, top: `${point.y}%` }}
+            onMouseEnter={() => openSpot(spot.id)}
+            onMouseLeave={() => leaveSpot(spot.id)}
+            onPointerDown={(event) => {
+              if (!isMobile) {
+                return;
+              }
+              event.preventDefault();
+              setPinned((current) => (current === spot.id ? null : spot.id));
+            }}
+            onClick={() => {
+              if (!isMobile) {
+                return;
+              }
+            }}
+            onFocus={() => openSpot(spot.id)}
+            onBlur={() => leaveSpot(spot.id)}
             aria-label={spot.label}
             aria-expanded={isActive}
           >
-            <span className={`absolute inset-0 rounded-full bg-[#c43a52]/35 transition ${isActive ? "scale-[2.25] opacity-60" : "scale-100 opacity-0"}`} />
-            <span className="absolute inset-0 rounded-full border border-white/75 bg-[#c43a52] shadow-[0_0_24px_rgba(196,58,82,0.52)] transition" />
-            <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90" />
-          </motion.button>
+            <span className={`absolute inset-0 !rounded-full bg-[#c43a52]/25 blur-[2px] transition duration-300 md:blur-[3px] ${isActive ? "scale-[2.8] opacity-80" : "scale-[1.9] opacity-35 group-hover:opacity-65 md:scale-[2.15]"}`} />
+            <span className="absolute inset-[4px] !rounded-full bg-[#9e1f36] transition duration-300 md:inset-[5px]" />
+            <span className={`pointer-events-none absolute hidden items-center gap-1.5 whitespace-nowrap text-[7px] font-semibold uppercase tracking-[0.16em] text-white/96 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] md:flex ${labelStyle.wrap}`}>
+              <span className={labelStyle.line} />
+              <span className="rounded-[6px] border border-white/14 bg-[#0d0e11] px-2 py-1 shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
+                {spot.label}
+              </span>
+            </span>
+          </button>
         );
       })}
       <AnimatePresence>
         {activeSpot && (
           <motion.div
             key={activeSpot.id}
-            initial={{ opacity: 0, x: 20, scale: 0.96 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.96 }}
-            transition={{ duration: 0.22 }}
-            className="pointer-events-auto absolute bottom-14 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"
+            ref={cardRef}
+            initial={isMobile ? { opacity: 0, y: 18, scale: 0.96 } : { opacity: 0, x: 20, scale: 0.96 }}
+            animate={isMobile ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, x: 0, scale: 1 }}
+            exit={isMobile ? { opacity: 0, y: 18, scale: 0.96 } : { opacity: 0, x: 20, scale: 0.96 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+            className={
+              isMobile
+                ? "pointer-events-auto absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl"
+                : "pointer-events-auto absolute bottom-14 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"
+            }
+            onMouseEnter={() => {
+              if (isMobile) {
+                return;
+              }
+              clearCloseTimer();
+            }}
+            onMouseLeave={() => {
+              if (isMobile) {
+                return;
+              }
+              leaveSpot(activeSpot.id);
+            }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">Направление работ</p>
-            <h3 className="mt-2 text-base font-black text-white">{activeSpot.label}</h3>
+            {isMobile && (
+              <button
+                type="button"
+                onClick={closeActive}
+                className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-white/16 bg-white/[0.07] text-base font-black leading-none text-white transition hover:border-[#c43a52] hover:bg-white/[0.12]"
+                aria-label="Close card"
+              >
+                X
+              </button>
+            )}
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">{"\u041d\u0430\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442"}</p>
+            <h3 className={`mt-2 font-black text-white ${isMobile ? "pr-10 text-lg" : "text-base"}`}>{activeSpot.label}</h3>
             <p className="mt-2 text-sm leading-5 text-white/82">{activeSpot.description}</p>
             <div className="mt-4 flex gap-2">
               <Link
                 href={activeSpot.href}
                 className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]"
               >
-                Подробнее
+                {"\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435"}
               </Link>
               <button
                 type="button"
                 onClick={onCalculate}
                 className="bg-[#9e1f36] px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-[#b72b43]"
               >
-                Рассчитать
+                {"\u0420\u0430\u0441\u0441\u0447\u0438\u0442\u0430\u0442\u044c"}
               </button>
             </div>
           </motion.div>
@@ -267,54 +399,36 @@ function ServiceHotspots({ onCalculate }: { onCalculate: () => void }) {
   );
 }
 
-function MobilePriceCards() {
-  return (
-    <section className="border-b border-white/10 bg-[#08090b] px-5 pb-10 md:hidden">
-      <div className="mx-auto grid max-w-2xl grid-cols-1 gap-3">
-        {hotspots.map((spot) => (
-          <div
-            key={spot.id}
-            className="rounded-lg border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12))] p-4"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-base font-black text-white">{spot.label}</h3>
-                <p className="mt-1 text-xs leading-5 text-white/82">{spot.description}</p>
-              </div>
-              <Link href={spot.href} className="shrink-0 text-xs font-black uppercase tracking-[0.12em] text-[#f09aac]">
-                Подробнее
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function MobileHeroImage() {
+function MobileHeroImage({ onCalculate }: { onCalculate: () => void }) {
   return (
     <section className="border-b border-white/10 bg-[#08090b] px-5 pb-8 md:hidden">
       <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden rounded-lg border border-white/10">
         <Image
           src="/images/hero-mobile-stoavto.png"
-          alt="СТОАВТО: легковой автомобиль и микроавтобус"
+          alt={"\u0421\u0422\u041e\u0410\u0412\u0422\u041e: \u043b\u0435\u0433\u043a\u043e\u0432\u043e\u0439 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c \u0438 \u043c\u0438\u043a\u0440\u043e\u0430\u0432\u0442\u043e\u0431\u0443\u0441"}
           fill
           sizes="100vw"
-          className="object-cover object-[58%_50%]"
+          className="object-cover object-center"
         />
+        <div className="mobile-hero-photo-mask pointer-events-none absolute inset-0 z-10" />
+        <ServiceHotspots mode="mobile" onCalculate={onCalculate} />
       </div>
     </section>
   );
 }
-
 function AdvantagesBar() {
   return (
-    <section className="border-b border-white/10 bg-[#0b0c10] px-5 py-5 sm:px-8 lg:px-10">
-      <div className="mx-auto grid max-w-[1440px] grid-cols-1 overflow-hidden rounded-lg border border-white/12 bg-white/[0.04] md:grid-cols-5 md:divide-x md:divide-white/10">
-        {advantages.map((item) => (
-          <div key={item} className="border-b border-white/10 px-5 py-5 text-sm font-bold text-white last:border-b-0 md:border-b-0">
-            {item}
+    <section className="border-b border-white/10 bg-[#0b0c10] px-5 py-6 sm:px-8 md:py-8 lg:px-10">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-3 md:auto-rows-[112px] md:grid-cols-6">
+        {advantages.map((item, index) => (
+          <div
+            key={item}
+            className={`advantage-card group relative overflow-hidden rounded-lg border border-white/12 bg-white/[0.045] p-5 text-sm font-bold text-white transition duration-300 hover:-translate-y-1 hover:border-[#c43a52]/70 hover:bg-white/[0.07] ${advantageLayouts[index]}`}
+          >
+            <span className="text-[11px] font-black text-[#c43a52]">{String(index + 1).padStart(2, "0")}</span>
+            <div className="mt-4 max-w-[19rem] text-[17px] leading-6 md:text-base lg:text-lg">
+              {item}
+            </div>
           </div>
         ))}
       </div>
