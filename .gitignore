@@ -6,3 +6,5 @@ dist
 !.env.example
 *.log
 .vercel
+data/*.sqlite
+data/*.sqlite-*

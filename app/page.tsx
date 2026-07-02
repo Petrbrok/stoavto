@@ -1,5 +1,8 @@
-import { HomePage } from "@/components/home-page";
+import { ManagedHomePage } from "@/components/managed-home-page";
+import { getSiteContent } from "@/lib/content-store";
+
+export const dynamic = "force-dynamic";
 
 export default function Page() {
-  return <HomePage />;
+  return <ManagedHomePage content={getSiteContent()} />;
 }

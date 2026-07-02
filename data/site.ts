@@ -3,7 +3,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://stoavto.ver
 export const CONTACT = {
   phone: "+7 (900) 000-00-00",
   phoneHref: "tel:+79000000000",
-  hours: "ежедневно с 10:00 до 21:00"
+  hours: "Ежедневно с 10:00 до 21:00"
 };
 
 export const services = [
@@ -28,17 +28,6 @@ export const services = [
     summary:
       "Делаем локальную и комплексную окраску, подбираем цвет и готовим поверхность под стабильный результат.",
     features: ["Подбор цвета", "Локальная окраска", "Полная окраска", "Полировка после работ"]
-  },
-  {
-    slug: "deteyling",
-    name: "Детейлинг",
-    title: "Детейлинг автомобиля в СТОАВТО",
-    description:
-      "Полировка, защита кузова, уход за салоном и внешний детейлинг для легковых автомобилей и коммерческого транспорта.",
-    h1: "Детейлинг и защита внешнего вида автомобиля",
-    summary:
-      "Возвращаем аккуратный внешний вид после ремонта и повседневной эксплуатации: кузов, салон, защитные составы.",
-    features: ["Полировка кузова", "Защитные покрытия", "Химчистка салона", "Подготовка к продаже"]
   },
   {
     slug: "diagnostika",
@@ -81,6 +70,19 @@ export type Brand = {
   icon?: string;
   fallbackLabel?: string;
 };
+
+export type InsurancePartner = {
+  name: string;
+  logo: string;
+  url: string;
+};
+
+export const insurancePartners: InsurancePartner[] = [
+  { name: "Росгосстрах", logo: "/images/partner-rosgosstrakh-logo.png", url: "https://www.rgs.ru/" },
+  { name: "Ингосстрах", logo: "/images/partner-ingosstrakh-logo.png", url: "https://www.ingos.ru/" },
+  { name: "ВСК", logo: "/images/partner-vsk-logo.png", url: "https://www.vsk.ru/" },
+  { name: "Ренессанс", logo: "/images/partner-renins-logo.png", url: "https://www.renins.ru/" }
+];
 
 export const brands: Brand[] = [
   { name: "Mercedes-Benz", slug: "mercedes-benz", fallbackLabel: "MB" },
@@ -153,7 +155,7 @@ export const mainPages = [
     path: "/uslugi",
     title: "Услуги автотехцентра СТОАВТО",
     description:
-      "Кузовной ремонт, покраска, детейлинг, диагностика, развал-схождение и слесарные работы в одном автотехцентре."
+      "Кузовной ремонт, покраска, диагностика, развал-схождение и слесарные работы в одном автотехцентре."
   },
   {
     path: "/raboty",

@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "latest",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.11.1",
     "framer-motion": "latest",
     "next": "latest",
     "react": "latest",

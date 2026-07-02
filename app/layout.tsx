@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "СТОАВТО | Автотехцентр полного цикла",
   description:
-    "Кузовной ремонт, покраска, детейлинг, диагностика, развал-схождение и слесарные работы для легковых автомобилей и коммерческого транспорта.",
+    "Кузовной ремонт, покраска, диагностика, развал-схождение и слесарные работы для легковых автомобилей и коммерческого транспорта.",
   openGraph: {
     type: "website",
     siteName: "СТОАВТО",
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
       "Современный автотехцентр для легковых автомобилей и коммерческого транспорта.",
     images: [
       {
-        url: "/images/hero-stoavto.png",
-        width: 1536,
-        height: 1024,
+        url: "/images/hero-stoavto-new.png",
+        width: 1680,
+        height: 945,
         alt: "СТОАВТО: легковой автомобиль и микроавтобус в автотехцентре"
       }
     ]
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "СТОАВТО | Автотехцентр полного цикла",
     description:
       "Кузовной ремонт, покраска, диагностика и обслуживание коммерческого транспорта.",
-    images: ["/images/hero-stoavto.png"]
+    images: ["/images/hero-stoavto-new.png"]
   }
 };
 

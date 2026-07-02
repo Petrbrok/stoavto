@@ -6,6 +6,7 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
+import type { ContactContent } from "@/types/site-content";
 
 type BusinessTime = { hour: number; minute: number };
 type MenuKey = "services" | "brands";
@@ -79,12 +80,13 @@ function OpenStatusBadge({
       aria-label={status.label}
       title={status.label}
     >
+      <span className="open-status-icon" aria-hidden="true" />
       {status.label}
     </span>
   );
 }
 
-export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
+export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment?: () => void; contact?: ContactContent }) {
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<MenuKey | null>("services");
@@ -163,10 +165,10 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
           <div className="ml-auto hidden shrink-0 items-center gap-2 xl:flex 2xl:gap-3">
             <OpenStatusBadge />
             <div className="min-w-max text-right">
-              <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-[13px] font-bold text-white 2xl:text-sm">
-                {CONTACT.phone}
+              <a href={contact.phoneHref} className="block whitespace-nowrap text-[13px] font-bold text-white 2xl:text-sm">
+                {contact.phone}
               </a>
-              <span className="text-xs text-white/78">{CONTACT.hours}</span>
+              <span className="text-xs text-white/78">{contact.hours}</span>
             </div>
             <button
               type="button"
@@ -227,6 +229,23 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
               exit={{ x: "100%" }}
               transition={{ duration: 0.34, ease: "easeOut" }}
             >
+              <div className="mb-5 rounded-lg border border-white/12 bg-white/[0.04] p-5">
+                <a href={contact.phoneHref} className="block whitespace-nowrap text-lg font-black text-white">
+                  {contact.phone}
+                </a>
+                <p className="mt-1 text-sm text-white/78">{contact.hours}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobile();
+                    setBookingChoiceOpen(true);
+                  }}
+                  className="mt-5 w-full bg-[#9e1f36] px-5 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+                >
+                  Записаться на удобное время
+                </button>
+              </div>
+
               <div className="grid gap-3">
                 <MobileAccordion
                   label="Услуги"
@@ -266,22 +285,6 @@ export function SiteHeader({ onAppointment }: { onAppointment?: () => void }) {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-lg border border-white/12 bg-white/[0.04] p-5">
-                <a href={CONTACT.phoneHref} className="block whitespace-nowrap text-lg font-black text-white">
-                  {CONTACT.phone}
-                </a>
-                <p className="mt-1 text-sm text-white/78">{CONTACT.hours}</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobile();
-                    setBookingChoiceOpen(true);
-                  }}
-                  className="mt-5 w-full bg-[#9e1f36] px-5 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
-                >
-                  Записаться на удобное время
-                </button>
-              </div>
             </motion.aside>
           </>
         )}
