@@ -126,7 +126,7 @@ function Hero({
 }) {
   return (
     <>
-      <section className="noise relative overflow-hidden border-b border-white/10 bg-[#101217] md:min-h-[760px] xl:min-h-[820px]">
+      <section className="noise relative overflow-hidden border-b border-white/10 bg-[#101217] md:min-h-[700px] xl:min-h-[760px]">
         <div className="absolute inset-0 hidden max-w-none md:block">
           <Image
             src="/images/hero-stoavto-new.png"
@@ -139,7 +139,7 @@ function Hero({
         </div>
         <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
         <ServiceHotspots onCalculate={onCalculate} />
-        <div className="pointer-events-none relative z-20 flex px-5 pb-8 pt-28 sm:px-8 md:min-h-[760px] md:pb-16 lg:px-10 xl:min-h-[820px]">
+        <div className="pointer-events-none relative z-20 flex px-5 pb-8 pt-24 sm:px-8 md:min-h-[700px] md:pb-12 lg:px-10 xl:min-h-[760px]">
           <div className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-start pb-4 md:items-center md:pb-0">
             <div className="max-w-[620px]">
               <p className="mb-5 w-fit rounded-lg border border-white/18 bg-white/[0.06] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">
@@ -282,7 +282,7 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
       {activeSpot && (
         <div
           ref={cardRef}
-          className={isMobile ? "pointer-events-auto absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "pointer-events-auto absolute bottom-14 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"}
+          className={isMobile ? "pointer-events-auto absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "pointer-events-auto absolute bottom-24 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"}
           onMouseEnter={() => !isMobile && clearCloseTimer()}
           onMouseLeave={() => !isMobile && leaveSpot(activeSpot.id)}
         >
@@ -307,7 +307,7 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
 function ActionButton({ children, onClick, tone }: { children: React.ReactNode; onClick: () => void; tone: "primary" | "secondary" }) {
   const classes = {
     primary: "bg-[#9e1f36] text-white shadow-[0_22px_70px_rgba(158,31,54,0.38)] hover:bg-[#b72b43]",
-    secondary: "border border-white/16 bg-white/[0.04] text-white hover:border-white/36 hover:bg-white/[0.08]"
+    secondary: "border border-[#f0d38a]/55 bg-[#f0d38a]/14 text-[#fff3c9] shadow-[0_18px_54px_rgba(240,211,138,0.14)] hover:border-[#f0d38a]/85 hover:bg-[#f0d38a]/22"
   };
 
   return (

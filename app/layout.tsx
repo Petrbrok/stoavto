@@ -18,6 +18,11 @@ const unbounded = Unbounded({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png"
+  },
   title: "СТОАВТО | Автотехцентр полного цикла",
   description:
     "Кузовной ремонт, покраска, диагностика, развал-схождение и слесарные работы для легковых автомобилей и коммерческого транспорта.",
