@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -191,10 +192,8 @@ function Hero({
 function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () => void; mode?: "desktop" | "mobile" }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
-  const [visibleSpot, setVisibleSpot] = useState<(typeof hotspots)[number] | null>(null);
   const isMobile = mode === "mobile";
   const hoverCloseTimer = useRef<number | null>(null);
-  const hideTimer = useRef<number | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const active = isMobile ? pinned : hovered;
   const activeSpot = hotspots.find((spot) => spot.id === active);
@@ -203,10 +202,6 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
     if (hoverCloseTimer.current !== null) {
       window.clearTimeout(hoverCloseTimer.current);
       hoverCloseTimer.current = null;
-    }
-    if (hideTimer.current !== null) {
-      window.clearTimeout(hideTimer.current);
-      hideTimer.current = null;
     }
   };
 
@@ -230,19 +225,6 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
       hoverCloseTimer.current = null;
     }, 1000);
   };
-
-  useEffect(() => {
-    if (activeSpot) {
-      clearCloseTimer();
-      setVisibleSpot(activeSpot);
-      return;
-    }
-
-    hideTimer.current = window.setTimeout(() => {
-      setVisibleSpot(null);
-      hideTimer.current = null;
-    }, 180);
-  }, [activeSpot]);
 
   useEffect(() => {
     if (isMobile || !activeSpot) return;
@@ -298,12 +280,17 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
           </button>
         );
       })}
-      {visibleSpot && (
-        <div
+      <AnimatePresence>
+        {activeSpot && (
+          <motion.div
           ref={cardRef}
-          className={`${isMobile ? "absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "absolute bottom-24 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"} pointer-events-auto transition-[opacity,transform] duration-300 ease-out ${activeSpot ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-2 scale-95"}`}
+          className={`${isMobile ? "absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "absolute bottom-24 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"} pointer-events-auto`}
+          initial={{ opacity: 0, y: 12, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 12, scale: 0.985 }}
+          transition={{ duration: 0.2 }}
           onMouseEnter={() => !isMobile && clearCloseTimer()}
-          onMouseLeave={() => !isMobile && leaveSpot(visibleSpot.id)}
+          onMouseLeave={() => !isMobile && leaveSpot(activeSpot.id)}
         >
           {isMobile && (
             <button type="button" onClick={closeActive} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-white/16 bg-white/[0.07] text-base font-black leading-none text-white transition hover:border-[#c43a52] hover:bg-white/[0.12]" aria-label="Закрыть">
@@ -311,14 +298,15 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
             </button>
           )}
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">Направление работ</p>
-          <h3 className={`mt-2 font-black text-white ${isMobile ? "pr-10 text-lg" : "text-base"}`}>{visibleSpot.label}</h3>
-          <p className="mt-2 text-sm leading-5 text-white/82">{visibleSpot.description}</p>
+          <h3 className={`mt-2 font-black text-white ${isMobile ? "pr-10 text-lg" : "text-base"}`}>{activeSpot.label}</h3>
+          <p className="mt-2 text-sm leading-5 text-white/82">{activeSpot.description}</p>
           <div className="mt-4 flex gap-2">
-            <Link href={visibleSpot.href} className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]">Подробнее</Link>
+            <Link href={activeSpot.href} className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]">Подробнее</Link>
             <button type="button" onClick={onCalculate} className="bg-[#9e1f36] px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-[#b72b43]">Рассчитать</button>
           </div>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -326,7 +314,7 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
 function ActionButton({ children, onClick, tone }: { children: React.ReactNode; onClick: () => void; tone: "primary" | "secondary" }) {
   const classes = {
     primary: "bg-[#9e1f36] text-white shadow-[0_22px_70px_rgba(158,31,54,0.38)] hover:bg-[#b72b43]",
-    secondary: "border border-white/22 bg-white/6 text-white shadow-[0_18px_54px_rgba(255,255,255,0.06)] hover:border-white/40 hover:bg-white/10"
+    secondary: "border border-white/16 bg-white/[0.04] text-white hover:border-white/36 hover:bg-white/[0.08]"
   };
 
   return (
