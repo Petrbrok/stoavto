@@ -11,7 +11,15 @@ const CONTENT_KEY = "site-content";
 let db: Database.Database | null = null;
 
 function getDbPath() {
-  return process.env.SITE_DB_PATH || path.join(process.cwd(), "data", "site.sqlite");
+  if (process.env.SITE_DB_PATH) {
+    return process.env.SITE_DB_PATH;
+  }
+
+  if (process.env.VERCEL) {
+    return path.join("/tmp", "site.sqlite");
+  }
+
+  return path.join(process.cwd(), "data", "site.sqlite");
 }
 
 function openDb() {
@@ -22,7 +30,7 @@ function openDb() {
   const dbPath = getDbPath();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   db = new Database(dbPath);
-  db.pragma("journal_mode = WAL");
+  db.pragma(process.env.VERCEL ? "journal_mode = DELETE" : "journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS content_store (
       key TEXT PRIMARY KEY,
