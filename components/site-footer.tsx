@@ -11,7 +11,7 @@ export function SiteFooter({ content }: { content: SiteContent }) {
   const phones = (content.contact.phones?.length
     ? content.contact.phones
     : [{ label: content.contact.phone, href: content.contact.phoneHref, visible: true }]
-  ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7").slice(0, 3);
+  ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7");
 
   return (
     <>

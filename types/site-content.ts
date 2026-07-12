@@ -37,6 +37,7 @@ export type CalculatorOption = {
   label: string;
   value: string;
   factor?: number;
+  visible?: boolean;
 };
 
 export type CalculatorService = {

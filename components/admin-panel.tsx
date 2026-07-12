@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type {
+  CalculatorOption,
   CalculatorService,
   CalculatorToggle,
   ContactPhone,
@@ -218,6 +219,7 @@ function HomeEditor({ content, setContent }: EditorProps) {
       <TextField label="Кнопка калькулятора" value={content.home.primaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, primaryButton: value } })} />
       <TextField label="Кнопка записи" value={content.home.secondaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, secondaryButton: value } })} />
       <TextField label="Преимущества, каждое с новой строки" textarea value={content.home.heroBenefits.join("\n")} onChange={(value) => setContent({ ...content, home: { ...content.home, heroBenefits: value.split("\n").filter(Boolean) } })} />
+      <TextField label="???????? ???????????, ?????? ? ????? ??????" textarea value={content.advantages.join("\n")} onChange={(value) => setContent({ ...content, advantages: value.split("\n").filter(Boolean) })} />
       <ImageField label="Фото на компьютере" value={content.home.desktopHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, desktopHeroImage: value } })} />
       <ImageField label="Фото на телефоне" value={content.home.mobileHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, mobileHeroImage: value } })} />
     </Card>
@@ -228,7 +230,7 @@ function ContactsEditor({ content, setContent }: EditorProps) {
   const phones = (content.contact.phones?.length
     ? content.contact.phones
     : [{ label: content.contact.phone, href: content.contact.phoneHref, visible: true }]
-  ).slice(0, 3);
+  );
   const setPhones = (nextPhones: ContactPhone[]) => {
     const firstVisible = nextPhones.find((phone) => phone.visible !== false && phone.label.trim()) ?? nextPhones[0];
     setContent({
@@ -237,7 +239,7 @@ function ContactsEditor({ content, setContent }: EditorProps) {
         ...content.contact,
         phone: firstVisible?.label || content.contact.phone,
         phoneHref: firstVisible?.href || content.contact.phoneHref,
-        phones: nextPhones.slice(0, 3)
+        phones: nextPhones
       }
     });
   };
@@ -257,15 +259,13 @@ function ContactsEditor({ content, setContent }: EditorProps) {
           onRemove={() => setPhones(phones.filter((_, itemIndex) => itemIndex !== index))}
         />
       ))}
-      {phones.length < 3 && (
-        <button
+      <button
           type="button"
           onClick={() => setPhones([...phones, { label: "", href: "tel:", visible: true }])}
           className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]"
         >
           Добавить телефон
-        </button>
-      )}
+      </button>
       <TextField label="Время работы" value={content.contact.hours} onChange={(value) => setContent({ ...content, contact: { ...content.contact, hours: value } })} />
     </Card>
   );
@@ -298,6 +298,40 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
         <TextField label="Описание" textarea value={calculator.text} onChange={(value) => setCalculator({ ...calculator, text: value })} />
         <TextField label="Кнопка" value={calculator.submitLabel} onChange={(value) => setCalculator({ ...calculator, submitLabel: value })} />
       </Card>
+      <Card title="Параметры расчета">
+        <h3 className="text-base font-black">Типы транспорта</h3>
+        {calculator.transports.map((option, index) => (
+          <CalculatorOptionCard
+            key={`${option.value}-${index}`}
+            option={option}
+            onChange={(next) => {
+              const transports = [...calculator.transports];
+              transports[index] = next;
+              setCalculator({ ...calculator, transports });
+            }}
+            onRemove={() => setCalculator({ ...calculator, transports: calculator.transports.filter((_, itemIndex) => itemIndex !== index) })}
+          />
+        ))}
+        <button type="button" onClick={() => setCalculator({ ...calculator, transports: [...calculator.transports, { label: "Новый транспорт", value: `transport-${Date.now()}`, factor: 1 }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
+          Добавить транспорт
+        </button>
+        <h3 className="pt-3 text-base font-black">Объемы работ</h3>
+        {calculator.sizes.map((option, index) => (
+          <CalculatorOptionCard
+            key={`${option.value}-${index}`}
+            option={option}
+            onChange={(next) => {
+              const sizes = [...calculator.sizes];
+              sizes[index] = next;
+              setCalculator({ ...calculator, sizes });
+            }}
+            onRemove={() => setCalculator({ ...calculator, sizes: calculator.sizes.filter((_, itemIndex) => itemIndex !== index) })}
+          />
+        ))}
+        <button type="button" onClick={() => setCalculator({ ...calculator, sizes: [...calculator.sizes, { label: "Новый объем", value: `size-${Date.now()}`, factor: 1 }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
+          Добавить объем
+        </button>
+      </Card>
       <Card title="Услуги и цены">
         {calculator.services.map((service, index) => (
           <ServicePriceCard
@@ -329,13 +363,29 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
               toggles[index] = next;
               setCalculator({ ...calculator, toggles });
             }}
+            onRemove={() => setCalculator({ ...calculator, toggles: calculator.toggles.filter((_, itemIndex) => itemIndex !== index) })}
           />
         ))}
+        <button type="button" onClick={() => setCalculator({ ...calculator, toggles: [...calculator.toggles, { label: "РќРѕРІР°СЏ РґРѕРїР»Р°С‚Р°", value: `toggle-${Date.now()}`, amountType: "fixed", amount: 0, defaultChecked: false, visible: true }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
+          Р”РѕР±Р°РІРёС‚СЊ РґРѕРїР»Р°С‚Сѓ
+        </button>
       </Card>
     </>
   );
 }
 
+function CalculatorOptionCard({ option, onChange, onRemove }: { option: CalculatorOption; onChange: (option: CalculatorOption) => void; onRemove: () => void }) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px_160px]">
+      <TextField label="Название" value={option.label} onChange={(label) => onChange({ ...option, label })} />
+      <TextField label="Код" value={option.value} onChange={(value) => onChange({ ...option, value })} />
+      <TextField label="Коэффициент" type="number" value={option.factor ?? 1} onChange={(value) => onChange({ ...option, factor: Number(value) })} />
+      <button type="button" onClick={onRemove} className="self-end rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white">
+        Удалить
+      </button>
+    </div>
+  );
+}
 function ServicePriceCard({ service, onChange, onRemove }: { service: CalculatorService; onChange: (service: CalculatorService) => void; onRemove: () => void }) {
   return (
     <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-5">
@@ -352,7 +402,7 @@ function ServicePriceCard({ service, onChange, onRemove }: { service: Calculator
   );
 }
 
-function TogglePriceCard({ toggle, onChange }: { toggle: CalculatorToggle; onChange: (toggle: CalculatorToggle) => void }) {
+function TogglePriceCard({ toggle, onChange, onRemove }: { toggle: CalculatorToggle; onChange: (toggle: CalculatorToggle) => void; onRemove: () => void }) {
   const amountType = toggle.amountType ?? "fixed";
 
   return (
@@ -370,6 +420,9 @@ function TogglePriceCard({ toggle, onChange }: { toggle: CalculatorToggle; onCha
       />
       <TextField label={amountType === "percent" ? "Процент, %" : "Доплата, руб."} type="number" value={toggle.amount} onChange={(value) => onChange({ ...toggle, amount: Number(value) })} />
       <ToggleField label="Показывать" checked={toggle.visible} onChange={(visible) => onChange({ ...toggle, visible })} />
+      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-5">
+        Удалить
+      </button>
     </div>
   );
 }
@@ -466,18 +519,22 @@ function FooterEditor({ content, setContent }: EditorProps) {
             services[index] = next;
             setContent({ ...content, footer: { ...content.footer, services } });
           }}
+          onRemove={() => setContent({ ...content, footer: { ...content.footer, services: content.footer.services.filter((_, itemIndex) => itemIndex !== index) } })}
         />
       ))}
     </Card>
   );
 }
 
-function FooterServiceCard({ service, onChange }: { service: FooterService; onChange: (service: FooterService) => void }) {
+function FooterServiceCard({ service, onChange, onRemove }: { service: FooterService; onChange: (service: FooterService) => void; onRemove: () => void }) {
   return (
     <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px]">
       <TextField label="Название" value={service.label} onChange={(value) => onChange({ ...service, label: value })} />
       <TextField label="Ссылка" value={service.href} onChange={(value) => onChange({ ...service, href: value })} />
       <ToggleField label="Показывать" checked={service.visible} onChange={(visible) => onChange({ ...service, visible })} />
+      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-3">
+        Удалить
+      </button>
     </div>
   );
 }

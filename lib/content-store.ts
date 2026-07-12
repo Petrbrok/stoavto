@@ -48,7 +48,6 @@ function normalizeContent(content: SiteContent): SiteContent {
     visible: true
   };
   const phones = (content.contact?.phones?.length ? content.contact.phones : [fallbackPhone])
-    .slice(0, 3)
     .map((phone) => ({
       label: phone.label || fallbackPhone.label,
       href: phone.href || fallbackPhone.href,

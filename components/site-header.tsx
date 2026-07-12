@@ -102,7 +102,7 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
   const headerPhones = (contact.phones?.length
     ? contact.phones
     : [{ label: contact.phone, href: contact.phoneHref, visible: true }]
-  ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7").slice(0, 3);
+  ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7");
 
   useEffect(() => {
     const saved = window.localStorage.getItem("site-theme") as ThemeMode | null;
