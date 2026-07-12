@@ -3,13 +3,15 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { type FormEvent, type MouseEvent, useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
 import type { ContactContent } from "@/types/site-content";
 
 type BusinessTime = { hour: number; minute: number };
 type MenuKey = "services" | "brands";
+type ThemeMode = "light" | "dark";
 
 const OPEN_FROM: BusinessTime = { hour: 10, minute: 0 };
 const OPEN_TO: BusinessTime = { hour: 21, minute: 0 };
@@ -87,14 +89,28 @@ function OpenStatusBadge({
 }
 
 export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment?: () => void; contact?: ContactContent }) {
+  const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<MenuKey | null>("services");
   const [fallbackAppointmentOpen, setFallbackAppointmentOpen] = useState(false);
   const [bookingChoiceOpen, setBookingChoiceOpen] = useState(false);
   const [callbackOpen, setCallbackOpen] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
 
   const appointment = onAppointment ?? (() => setFallbackAppointmentOpen(true));
+  const headerPhones = (contact.phones?.length
+    ? contact.phones
+    : [{ label: contact.phone, href: contact.phoneHref, visible: true }]
+  ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7").slice(0, 3);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("site-theme") as ThemeMode | null;
+    const systemLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+    const nextTheme = saved === "light" || saved === "dark" ? saved : systemLight ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+    setThemeMode(nextTheme);
+  }, []);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -113,19 +129,35 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
     setOpenMenu(null);
   }
 
+  function toggleTheme() {
+    const nextTheme: ThemeMode = themeMode === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = nextTheme;
+    window.localStorage.setItem("site-theme", nextTheme);
+    setThemeMode(nextTheme);
+  }
+
+  function handleLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    closeMobile();
+    if (pathname !== "/") {
+      return;
+    }
+
+    event.preventDefault();
+    if (window.scrollY <= 8) {
+      window.location.reload();
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
     <>
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#08090b]/78 backdrop-blur-xl">
         <div className="mx-auto flex h-[68px] w-full max-w-none items-center gap-3 px-3 sm:px-6 lg:px-8 xl:h-[72px] xl:px-4 2xl:px-5">
-          <Link href="/" className="flex shrink-0 items-center" onClick={closeMobile} aria-label="СТОАВТО">
-            <Image
-              src="/images/stoavto-logo-transparent.png"
-              alt="СТОАВТО"
-              width={1759}
-              height={306}
-              priority
-              className="h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.24)] sm:h-8 xl:h-9 2xl:h-10"
-            />
+          <Link href="/" className="flex shrink-0 items-center" onClick={handleLogoClick} aria-label="СТОАВТО">
+            <Image src="/images/stoavto-logo-transparent.png" alt="СТОАВТО" width={1759} height={306} priority className="site-logo site-logo-dark h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.24)] sm:h-8 xl:h-9 2xl:h-10" />
+            <Image src="/images/stoavto-logo-light.png" alt="СТОАВТО" width={1759} height={306} priority className="site-logo site-logo-light hidden h-7 w-auto object-contain drop-shadow-[0_8px_24px_rgba(158,31,54,0.16)] sm:h-8 xl:h-9 2xl:h-10" />
           </Link>
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center gap-3 text-[12px] font-bold text-white xl:flex 2xl:gap-5 2xl:text-[13px]">
@@ -164,10 +196,15 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
 
           <div className="ml-auto hidden shrink-0 items-center gap-2 xl:flex 2xl:gap-3">
             <OpenStatusBadge />
-            <div className="min-w-max text-right">
-              <a href={contact.phoneHref} className="block whitespace-nowrap text-[13px] font-bold text-white 2xl:text-sm">
-                {contact.phone}
-              </a>
+            <button type="button" onClick={toggleTheme} className="theme-toggle" aria-label={themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"} title={themeMode === "light" ? "Темная тема" : "Светлая тема"}>
+              <span className="theme-toggle-icon" aria-hidden="true" />
+            </button>
+            <div className="grid min-w-max gap-0.5 text-right">
+              {headerPhones.map((phone) => (
+                <a key={`${phone.href}-${phone.label}`} href={phone.href} className="block whitespace-nowrap text-[12px] font-bold text-white 2xl:text-sm">
+                  {phone.label}
+                </a>
+              ))}
               <span className="text-xs text-white/78">{contact.hours}</span>
             </div>
             <button
@@ -181,6 +218,9 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
 
           <div className="ml-auto flex shrink-0 items-center gap-2 xl:hidden">
             <OpenStatusBadge className="header-open-status" />
+            <button type="button" onClick={toggleTheme} className="theme-toggle h-11 w-11" aria-label={themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"}>
+              <span className="theme-toggle-icon" aria-hidden="true" />
+            </button>
             <button
               type="button"
               onClick={() => setMobileOpen((value) => !value)}
@@ -230,9 +270,13 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
               transition={{ duration: 0.34, ease: "easeOut" }}
             >
               <div className="mb-5 rounded-lg border border-white/12 bg-white/[0.04] p-5">
-                <a href={contact.phoneHref} className="block whitespace-nowrap text-lg font-black text-white">
-                  {contact.phone}
-                </a>
+                <div className="grid gap-1">
+                  {headerPhones.map((phone) => (
+                    <a key={`${phone.href}-${phone.label}`} href={phone.href} className="block whitespace-nowrap text-lg font-black text-white">
+                      {phone.label}
+                    </a>
+                  ))}
+                </div>
                 <p className="mt-1 text-sm text-white/78">{contact.hours}</p>
                 <button
                   type="button"

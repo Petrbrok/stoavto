@@ -8,6 +8,7 @@ import * as simpleIcons from "simple-icons";
 import { brands } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
 import { LeadFormModal } from "@/components/lead-form-modal";
+import { SiteFooter as SharedSiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import type { CalculatorContent, ImageTextItem, ReviewContent, SiteContent } from "@/types/site-content";
 
@@ -99,7 +100,7 @@ export function ManagedHomePage({ content }: { content: SiteContent }) {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
+    <main className="site-shell min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
       <SiteHeader onAppointment={openAppointment} contact={content.contact} />
       <Hero content={content} onCalculate={scrollToCalculator} onAppointment={openAppointment} />
       <InsurancePartnersStrip title={content.insurance.title} partners={content.insurance.partners} />
@@ -109,7 +110,7 @@ export function ManagedHomePage({ content }: { content: SiteContent }) {
       <QualityIdeas ideas={content.ideas} onAppointment={openAppointment} />
       <ReviewsSection title={content.reviews.title} subtitle={content.reviews.subtitle} reviews={content.reviews.items} />
       <FacilitySections photos={content.facilityPhotos} />
-      <SiteFooter content={content} onAppointment={openAppointment} />
+      <SharedSiteFooter content={content} />
       <LeadFormModal open={isLeadOpen} onClose={() => setIsLeadOpen(false)} />
       <AppointmentModal open={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} />
     </main>
@@ -130,7 +131,7 @@ function Hero({
       <section className="noise relative overflow-hidden border-b border-white/10 bg-[#101217] md:min-h-[700px] xl:min-h-[760px]">
         <div className="absolute inset-0 hidden max-w-none md:block">
           <Image
-            src="/images/hero-stoavto-new.png"
+            src={content.home.desktopHeroImage || "/images/hero-stoavto-new.png"}
             alt="СТОАВТО: легковой автомобиль и микроавтобус в современном автотехцентре"
             fill
             priority
@@ -152,7 +153,7 @@ function Hero({
                     {line.includes(content.home.accent) ? (
                       <span className="md:whitespace-nowrap">
                         {line.replace(content.home.accent, "")}
-                        <span className="text-[#9e1f36] drop-shadow-[0_0_24px_rgba(158,31,54,0.32)]">{content.home.accent}</span>
+                        <span className="hero-accent text-[#9e1f36] drop-shadow-[0_0_24px_rgba(158,31,54,0.32)]">{content.home.accent}</span>
                       </span>
                     ) : (
                       line
@@ -273,9 +274,9 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
           >
             <span className={`absolute inset-0 !rounded-full bg-[#c43a52]/25 blur-[2px] transition duration-300 md:blur-[3px] ${isActive ? "scale-[2.8] opacity-80" : "scale-[1.9] opacity-35 group-hover:opacity-65 md:scale-[2.15]"}`} />
             <span className="absolute inset-[4px] !rounded-full bg-[#9e1f36] transition duration-300 md:inset-[5px]" />
-            <span className={`pointer-events-none absolute hidden items-center gap-1.5 whitespace-nowrap text-[7px] font-semibold uppercase tracking-[0.16em] text-white/96 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] md:flex ${labelStyle.wrap}`}>
+            <span className={`hotspot-label pointer-events-none absolute hidden items-center gap-1.5 whitespace-nowrap text-[7px] font-semibold uppercase tracking-[0.16em] text-white/96 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] md:flex ${labelStyle.wrap}`}>
               <span className={labelStyle.line} />
-              <span className="rounded-[6px] border border-white/14 bg-[#0d0e11] px-2 py-1 shadow-[0_8px_18px_rgba(0,0,0,0.28)]">{spot.label}</span>
+              <span className="hotspot-label-pill rounded-[6px] border border-white/14 bg-[#0d0e11] px-2 py-1 shadow-[0_8px_18px_rgba(0,0,0,0.28)]">{spot.label}</span>
             </span>
           </button>
         );
@@ -284,7 +285,7 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
         {activeSpot && (
           <motion.div
           ref={cardRef}
-          className={`${isMobile ? "absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "absolute bottom-24 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"} pointer-events-auto`}
+          className={`${isMobile ? "hotspot-card absolute inset-x-4 bottom-4 z-50 rounded-lg border border-white/16 bg-[#101217]/92 p-4 text-left shadow-[0_24px_80px_rgba(0,0,0,0.58)] backdrop-blur-xl" : "hotspot-card absolute bottom-24 right-10 z-40 w-[300px] rounded-lg border border-white/12 bg-[#101217]/90 p-4 text-left shadow-[0_22px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl"} pointer-events-auto`}
           initial={{ opacity: 0, y: 12, scale: 0.985 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 12, scale: 0.985 }}
@@ -395,9 +396,13 @@ function PriceCalculator({ calculator, onLead }: { calculator: CalculatorContent
   const transportFactor = calculator.transports.find((item) => item.value === transport)?.factor ?? 1;
   const sizeFactor = calculator.sizes.find((item) => item.value === size)?.factor ?? 1;
   const urgentFactor = toggleState.urgent ? 1.18 : 1;
-  const toggleAdd = visibleToggles.reduce((sum, toggle) => sum + (toggleState[toggle.value] ? toggle.amount : 0), 0);
-  const low = Math.max(1000, Math.round(((selected?.base ?? 1000) * transportFactor * sizeFactor * urgentFactor + toggleAdd) / 100) * 100);
-  const high = Math.round(((selected?.max ?? 5000) * transportFactor * sizeFactor * urgentFactor + Math.max(toggleAdd, 0)) / 100) * 100;
+  const baseLow = (selected?.base ?? 1000) * transportFactor * sizeFactor * urgentFactor;
+  const baseHigh = (selected?.max ?? 5000) * transportFactor * sizeFactor * urgentFactor;
+  const activeToggles = visibleToggles.filter((toggle) => toggleState[toggle.value]);
+  const fixedAdd = activeToggles.reduce((sum, toggle) => sum + ((toggle.amountType ?? "fixed") === "fixed" ? toggle.amount : 0), 0);
+  const percentAdd = activeToggles.reduce((sum, toggle) => sum + ((toggle.amountType ?? "fixed") === "percent" ? toggle.amount : 0), 0);
+  const low = Math.max(1000, Math.round(((baseLow * (1 + percentAdd / 100)) + fixedAdd) / 100) * 100);
+  const high = Math.round(((baseHigh * (1 + percentAdd / 100)) + Math.max(fixedAdd, 0)) / 100) * 100;
 
   return (
     <section id="price-calculator" className="scroll-mt-28 border-t border-white/10 bg-[#08090b] px-5 py-18 sm:px-8 lg:px-10">
@@ -407,7 +412,8 @@ function PriceCalculator({ calculator, onLead }: { calculator: CalculatorContent
           <h2 className="font-display mt-5 max-w-2xl text-3xl font-black text-white sm:text-5xl">{calculator.title}</h2>
           <p className="mt-5 max-w-xl text-base leading-7 text-white">{calculator.text}</p>
           <div className="mt-8 max-w-[560px]">
-            <Image src="/images/stoavto-logo-transparent.png" alt="СТОАВТО" width={1759} height={306} sizes="(min-width: 1024px) 420px, 88vw" className="h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.34)]" />
+            <Image src="/images/stoavto-logo-transparent.png" alt="СТОАВТО" width={1759} height={306} sizes="(min-width: 1024px) 420px, 88vw" className="site-logo site-logo-dark h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.34)]" />
+            <Image src="/images/stoavto-logo-light.png" alt="СТОАВТО" width={1759} height={306} sizes="(min-width: 1024px) 420px, 88vw" className="site-logo site-logo-light hidden h-auto w-full object-contain drop-shadow-[0_18px_48px_rgba(158,31,54,0.18)]" />
           </div>
         </div>
         <div className="rounded-lg border border-white/12 bg-white/[0.04] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:p-7">
@@ -442,7 +448,7 @@ function SelectField({ label, value, onChange, options }: { label: string; value
   return (
     <label className="grid gap-2 text-sm font-bold text-white">
       {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="border border-white/16 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="calculator-select border border-white/16 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
         {options.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
       </select>
     </label>

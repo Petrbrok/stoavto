@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
+import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
 import { brands } from "@/data/site";
 
 type Props = {
@@ -39,7 +39,7 @@ export default async function BrandPage({ params }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="site-shell min-h-screen bg-[#08090b] text-white">
       <InnerHeader />
       <InnerHero
         eyebrow="Марка автомобиля"
@@ -63,6 +63,7 @@ export default async function BrandPage({ params }: Props) {
       </section>
       <PhotoCapabilityGrid />
       <ServiceLinks />
+      <InnerFooter />
     </main>
   );
 }

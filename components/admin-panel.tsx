@@ -6,6 +6,7 @@ import { useState } from "react";
 import type {
   CalculatorService,
   CalculatorToggle,
+  ContactPhone,
   FooterService,
   ImageTextItem,
   InsurancePartnerContent,
@@ -51,7 +52,7 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
   }
 
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="admin-shell min-h-screen bg-[#08090b] text-white">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08090b]/92 px-4 py-4 backdrop-blur md:px-8">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -147,6 +148,29 @@ function ToggleField({ label, checked, onChange }: { label: string; checked: boo
   );
 }
 
+function SelectField({
+  label,
+  value,
+  onChange,
+  options
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-bold text-white/80">
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function ImageField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   const [uploading, setUploading] = useState(false);
 
@@ -194,18 +218,71 @@ function HomeEditor({ content, setContent }: EditorProps) {
       <TextField label="Кнопка калькулятора" value={content.home.primaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, primaryButton: value } })} />
       <TextField label="Кнопка записи" value={content.home.secondaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, secondaryButton: value } })} />
       <TextField label="Преимущества, каждое с новой строки" textarea value={content.home.heroBenefits.join("\n")} onChange={(value) => setContent({ ...content, home: { ...content.home, heroBenefits: value.split("\n").filter(Boolean) } })} />
+      <ImageField label="Фото на компьютере" value={content.home.desktopHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, desktopHeroImage: value } })} />
       <ImageField label="Фото на телефоне" value={content.home.mobileHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, mobileHeroImage: value } })} />
     </Card>
   );
 }
 
 function ContactsEditor({ content, setContent }: EditorProps) {
+  const phones = (content.contact.phones?.length
+    ? content.contact.phones
+    : [{ label: content.contact.phone, href: content.contact.phoneHref, visible: true }]
+  ).slice(0, 3);
+  const setPhones = (nextPhones: ContactPhone[]) => {
+    const firstVisible = nextPhones.find((phone) => phone.visible !== false && phone.label.trim()) ?? nextPhones[0];
+    setContent({
+      ...content,
+      contact: {
+        ...content.contact,
+        phone: firstVisible?.label || content.contact.phone,
+        phoneHref: firstVisible?.href || content.contact.phoneHref,
+        phones: nextPhones.slice(0, 3)
+      }
+    });
+  };
+
   return (
     <Card title="Контакты">
-      <TextField label="Телефон на сайте" value={content.contact.phone} onChange={(value) => setContent({ ...content, contact: { ...content.contact, phone: value } })} />
-      <TextField label="Телефон-ссылка tel:" value={content.contact.phoneHref} onChange={(value) => setContent({ ...content, contact: { ...content.contact, phoneHref: value } })} />
+      {phones.map((phone, index) => (
+        <PhoneCard
+          key={index}
+          title={`Телефон ${index + 1}`}
+          phone={phone}
+          onChange={(next) => {
+            const nextPhones = [...phones];
+            nextPhones[index] = next;
+            setPhones(nextPhones);
+          }}
+          onRemove={() => setPhones(phones.filter((_, itemIndex) => itemIndex !== index))}
+        />
+      ))}
+      {phones.length < 3 && (
+        <button
+          type="button"
+          onClick={() => setPhones([...phones, { label: "", href: "tel:", visible: true }])}
+          className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]"
+        >
+          Добавить телефон
+        </button>
+      )}
       <TextField label="Время работы" value={content.contact.hours} onChange={(value) => setContent({ ...content, contact: { ...content.contact, hours: value } })} />
     </Card>
+  );
+}
+
+function PhoneCard({ title, phone, onChange, onRemove }: { title: string; phone: ContactPhone; onChange: (phone: ContactPhone) => void; onRemove: () => void }) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px]">
+      <TextField label={title} value={phone.label} onChange={(label) => onChange({ ...phone, label })} />
+      <TextField label="Ссылка tel:" value={phone.href} onChange={(href) => onChange({ ...phone, href })} />
+      <div className="grid content-end gap-3">
+        <ToggleField label="Показывать" checked={phone.visible !== false} onChange={(visible) => onChange({ ...phone, visible })} />
+        <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white">
+          Удалить
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -276,11 +353,22 @@ function ServicePriceCard({ service, onChange, onRemove }: { service: Calculator
 }
 
 function TogglePriceCard({ toggle, onChange }: { toggle: CalculatorToggle; onChange: (toggle: CalculatorToggle) => void }) {
+  const amountType = toggle.amountType ?? "fixed";
+
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-4">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-5">
       <TextField label="Название" value={toggle.label} onChange={(value) => onChange({ ...toggle, label: value })} />
       <TextField label="Код" value={toggle.value} onChange={(value) => onChange({ ...toggle, value })} />
-      <TextField label="Доплата" type="number" value={toggle.amount} onChange={(value) => onChange({ ...toggle, amount: Number(value) })} />
+      <SelectField
+        label="Тип доплаты"
+        value={amountType}
+        onChange={(value) => onChange({ ...toggle, amountType: value === "percent" ? "percent" : "fixed" })}
+        options={[
+          { label: "Рубли", value: "fixed" },
+          { label: "Процент", value: "percent" }
+        ]}
+      />
+      <TextField label={amountType === "percent" ? "Процент, %" : "Доплата, руб."} type="number" value={toggle.amount} onChange={(value) => onChange({ ...toggle, amount: Number(value) })} />
       <ToggleField label="Показывать" checked={toggle.visible} onChange={(visible) => onChange({ ...toggle, visible })} />
     </div>
   );

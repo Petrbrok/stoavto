@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
+import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
 import { services } from "@/data/site";
 
 type Props = {
@@ -39,7 +39,7 @@ export default async function ServicePage({ params }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="site-shell min-h-screen bg-[#08090b] text-white">
       <InnerHeader />
       <InnerHero eyebrow="Услуга СТОАВТО" title={service.h1} text={service.summary} />
       <section className="px-5 py-14 sm:px-8 lg:px-10">
@@ -59,6 +59,7 @@ export default async function ServicePage({ params }: Props) {
       </section>
       <PhotoCapabilityGrid />
       <ServiceLinks />
+      <InnerFooter />
     </main>
   );
 }

@@ -1,6 +1,13 @@
+export type ContactPhone = {
+  label: string;
+  href: string;
+  visible: boolean;
+};
+
 export type ContactContent = {
   phone: string;
   phoneHref: string;
+  phones?: ContactPhone[];
   hours: string;
 };
 
@@ -44,6 +51,7 @@ export type CalculatorService = {
 export type CalculatorToggle = {
   label: string;
   value: string;
+  amountType?: "fixed" | "percent";
   amount: number;
   defaultChecked: boolean;
   visible: boolean;
@@ -78,6 +86,7 @@ export type SiteContent = {
     primaryButton: string;
     secondaryButton: string;
     heroBenefits: string[];
+    desktopHeroImage: string;
     mobileHeroImage: string;
   };
   insurance: {

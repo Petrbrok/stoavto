@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InnerHeader, InnerHero, PhotoCapabilityGrid } from "@/components/inner-page";
+import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid } from "@/components/inner-page";
 import { brands, mainPages } from "@/data/site";
 
 const page = mainPages.find((item) => item.path === "/marki")!;
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function BrandsPage() {
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="site-shell min-h-screen bg-[#08090b] text-white">
       <InnerHeader />
       <InnerHero
         eyebrow="Марки автомобилей"
@@ -34,6 +34,7 @@ export default function BrandsPage() {
         </div>
       </section>
       <PhotoCapabilityGrid />
+      <InnerFooter />
     </main>
   );
 }

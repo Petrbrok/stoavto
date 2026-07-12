@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { InnerHeader, InnerHero, PhotoCapabilityGrid } from "@/components/inner-page";
+import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid } from "@/components/inner-page";
 import { mainPages } from "@/data/site";
 
 const page = mainPages.find((item) => item.path === "/raboty")!;
@@ -25,7 +25,7 @@ const workTypes = [
 
 export default function WorksPage() {
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="site-shell min-h-screen bg-[#08090b] text-white">
       <InnerHeader />
       <InnerHero
         eyebrow="Выполненные работы"
@@ -49,6 +49,7 @@ export default function WorksPage() {
         </div>
       </section>
       <PhotoCapabilityGrid />
+      <InnerFooter />
     </main>
   );
 }

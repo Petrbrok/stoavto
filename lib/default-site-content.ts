@@ -39,6 +39,9 @@ export const defaultSiteContent: SiteContent = {
   contact: {
     phone: "+7 (900) 000-00-00",
     phoneHref: "tel:+79000000000",
+    phones: [
+      { label: "+7 (900) 000-00-00", href: "tel:+79000000000", visible: true }
+    ],
     hours: "Ежедневно с 10:00 до 21:00"
   },
   home: {
@@ -54,6 +57,7 @@ export const defaultSiteContent: SiteContent = {
       "Фотоотчёт по этапам ремонта",
       "Гарантия на выполненные работы"
     ],
+    desktopHeroImage: "/images/hero-stoavto-new.png",
     mobileHeroImage: "/images/hero-mobile-stoavto.png"
   },
   insurance: {
@@ -104,9 +108,9 @@ export const defaultSiteContent: SiteContent = {
       { label: "Коммерческий транспорт", value: "commercial", base: 4500, max: 30000, days: "2-6 дней", visible: true }
     ],
     toggles: [
-      { label: "Нужна покраска", value: "paint", amount: 3500, defaultChecked: true, visible: true },
-      { label: "Срочно", value: "urgent", amount: 0, defaultChecked: false, visible: true },
-      { label: "Фотоотчёт", value: "report", amount: 0, defaultChecked: true, visible: true }
+      { label: "Нужна покраска", value: "paint", amountType: "fixed", amount: 3500, defaultChecked: true, visible: true },
+      { label: "Срочно", value: "urgent", amountType: "percent", amount: 18, defaultChecked: false, visible: true },
+      { label: "Фотоотчёт", value: "report", amountType: "fixed", amount: 0, defaultChecked: true, visible: true }
     ]
   },
   ideas: [

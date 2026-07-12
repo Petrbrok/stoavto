@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { facilityPhotos, services } from "@/data/site";
+import { getSiteContent } from "@/lib/content-store";
 
 export function InnerHeader() {
   return <SiteHeader />;
+}
+
+export function InnerFooter() {
+  return <SiteFooter content={getSiteContent()} />;
 }
 
 export function InnerHero({

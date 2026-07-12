@@ -42,13 +42,33 @@ function openDb() {
 }
 
 function normalizeContent(content: SiteContent): SiteContent {
+  const fallbackPhone = {
+    label: content.contact?.phone || defaultSiteContent.contact.phone,
+    href: content.contact?.phoneHref || defaultSiteContent.contact.phoneHref,
+    visible: true
+  };
+  const phones = (content.contact?.phones?.length ? content.contact.phones : [fallbackPhone])
+    .slice(0, 3)
+    .map((phone) => ({
+      label: phone.label || fallbackPhone.label,
+      href: phone.href || fallbackPhone.href,
+      visible: phone.visible !== false
+    }));
+
   return {
     ...defaultSiteContent,
     ...content,
-    contact: { ...defaultSiteContent.contact, ...content.contact },
+    contact: { ...defaultSiteContent.contact, ...content.contact, phones },
     home: { ...defaultSiteContent.home, ...content.home },
     insurance: { ...defaultSiteContent.insurance, ...content.insurance },
-    calculator: { ...defaultSiteContent.calculator, ...content.calculator },
+    calculator: {
+      ...defaultSiteContent.calculator,
+      ...content.calculator,
+      toggles: (content.calculator?.toggles?.length ? content.calculator.toggles : defaultSiteContent.calculator.toggles).map((toggle) => ({
+        ...toggle,
+        amountType: toggle.amountType === "percent" ? "percent" : "fixed"
+      }))
+    },
     reviews: { ...defaultSiteContent.reviews, ...content.reviews },
     footer: { ...defaultSiteContent.footer, ...content.footer }
   };

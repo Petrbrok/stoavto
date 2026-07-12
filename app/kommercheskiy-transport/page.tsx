@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
+import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
 import { mainPages } from "@/data/site";
 
 const page = mainPages.find((item) => item.path === "/kommercheskiy-transport")!;
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function CommercialTransportPage() {
   return (
-    <main className="min-h-screen bg-[#08090b] text-white">
+    <main className="site-shell min-h-screen bg-[#08090b] text-white">
       <InnerHeader />
       <InnerHero
         eyebrow="Коммерческий транспорт"
@@ -38,6 +38,7 @@ export default function CommercialTransportPage() {
       </section>
       <PhotoCapabilityGrid />
       <ServiceLinks />
+      <InnerFooter />
     </main>
   );
 }
