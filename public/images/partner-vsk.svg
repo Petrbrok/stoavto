@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80" role="img" aria-labelledby="title">
-  <title id="title">ВСК</title>
-  <rect width="160" height="80" rx="14" fill="#f5f7fb"/>
-  <path d="M28 24h16l13 25 13-25h16L64 60H50L28 24Z" fill="#1d4f9a"/>
-  <path d="M87 24h15v13h16V24h15v36h-15V47h-16v13H87V24Z" fill="#1d4f9a"/>
-  <path d="M40 18h80" stroke="#e21d2f" stroke-width="7" stroke-linecap="round"/>
-</svg>
