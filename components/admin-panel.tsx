@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   CalculatorOption,
   CalculatorService,
@@ -11,28 +11,47 @@ import type {
   FooterService,
   ImageTextItem,
   InsurancePartnerContent,
+  PageHeroContent,
   ReviewContent,
+  SeoContent,
   SiteContent
 } from "@/types/site-content";
 
-type TabKey = "home" | "contacts" | "calculator" | "reviews" | "insurance" | "footer" | "photos";
+type TabKey = "home" | "services" | "brands" | "commercial" | "works" | "reviews" | "contacts" | "general";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "home", label: "Главная" },
-  { key: "contacts", label: "Контакты" },
-  { key: "calculator", label: "Калькулятор" },
+  { key: "services", label: "Услуги" },
+  { key: "brands", label: "Марки" },
+  { key: "commercial", label: "Коммерческий транспорт" },
+  { key: "works", label: "Наши работы" },
   { key: "reviews", label: "Отзывы" },
-  { key: "insurance", label: "Страховые" },
-  { key: "footer", label: "Футер" },
-  { key: "photos", label: "Фото" }
+  { key: "contacts", label: "Контакты" },
+  { key: "general", label: "Общее" }
 ];
+
+const previewUrls: Record<TabKey, string> = {
+  home: "/", services: "/uslugi", brands: "/marki", commercial: "/kommercheskiy-transport",
+  works: "/raboty", reviews: "/#reviews", contacts: "/#contacts", general: "/"
+};
 
 export function AdminPanel({ initialContent }: { initialContent: SiteContent }) {
   const router = useRouter();
   const [content, setContent] = useState(initialContent);
+  const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialContent));
   const [activeTab, setActiveTab] = useState<TabKey>("home");
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
+  const isDirty = JSON.stringify(content) !== savedSnapshot;
+
+  useEffect(() => {
+    const warnBeforeLeave = (event: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warnBeforeLeave);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeave);
+  }, [isDirty]);
 
   async function save() {
     setSaving(true);
@@ -42,11 +61,19 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(content)
     });
+    if (response.ok) {
+      const saved = (await response.json()) as SiteContent;
+      setContent(saved);
+      setSavedSnapshot(JSON.stringify(saved));
+      setStatus("Сохранено");
+    } else {
+      setStatus("Ошибка сохранения");
+    }
     setSaving(false);
-    setStatus(response.ok ? "Сохранено" : "Ошибка сохранения");
   }
 
   async function logout() {
+    if (isDirty && !window.confirm("Есть несохранённые изменения. Выйти без сохранения?")) return;
     await fetch("/api/admin/logout", { method: "POST" });
     router.push("/admin/login");
     router.refresh();
@@ -61,8 +88,11 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
             <h1 className="mt-1 text-2xl font-black">Админ-панель сайта</h1>
           </div>
           <div className="flex flex-wrap gap-2">
-            <a href="/" target="_blank" className="border border-white/14 px-4 py-2.5 text-sm font-bold text-white/86 transition hover:border-[#c43a52]">
-              Открыть сайт
+            <span className={`self-center text-sm font-bold ${isDirty ? "text-[#f0a2b0]" : "text-white/55"}`}>
+              {isDirty ? "Есть несохранённые изменения" : "Всё сохранено"}
+            </span>
+            <a href={previewUrls[activeTab]} target="_blank" className="border border-white/14 px-4 py-2.5 text-sm font-bold text-white/86 transition hover:border-[#c43a52]">
+              Предпросмотр
             </a>
             <button type="button" onClick={save} disabled={saving} className="bg-[#9e1f36] px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-[#b72b43] disabled:opacity-60">
               {saving ? "Сохраняю..." : "Сохранить"}
@@ -92,13 +122,14 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
         </nav>
 
         <section className="grid gap-5">
-          {activeTab === "home" && <HomeEditor content={content} setContent={setContent} />}
-          {activeTab === "contacts" && <ContactsEditor content={content} setContent={setContent} />}
-          {activeTab === "calculator" && <CalculatorEditor content={content} setContent={setContent} />}
+          {activeTab === "home" && <HomeSectionEditor content={content} setContent={setContent} />}
+          {activeTab === "services" && <ServicesEditor content={content} setContent={setContent} />}
+          {activeTab === "brands" && <BrandsEditor content={content} setContent={setContent} />}
+          {activeTab === "commercial" && <SimplePageEditor pageKey="commercial" title="Коммерческий транспорт" content={content} setContent={setContent} />}
+          {activeTab === "works" && <SimplePageEditor pageKey="works" title="Наши работы" content={content} setContent={setContent} />}
           {activeTab === "reviews" && <ReviewsEditor content={content} setContent={setContent} />}
-          {activeTab === "insurance" && <InsuranceEditor content={content} setContent={setContent} />}
-          {activeTab === "footer" && <FooterEditor content={content} setContent={setContent} />}
-          {activeTab === "photos" && <PhotosManager content={content} setContent={setContent} />}
+          {activeTab === "contacts" && <ContactsEditor content={content} setContent={setContent} />}
+          {activeTab === "general" && <GeneralEditor content={content} setContent={setContent} />}
         </section>
       </div>
     </main>
@@ -209,9 +240,22 @@ function ImageField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
+function HomeSectionEditor(props: EditorProps) {
+  return (
+    <>
+      <HomeEditor {...props} />
+      <InsuranceEditor {...props} />
+      <CalculatorEditor {...props} />
+      <IdeasEditor {...props} />
+      <PhotosManager {...props} />
+    </>
+  );
+}
+
 function HomeEditor({ content, setContent }: EditorProps) {
   return (
     <Card title="Главная">
+      <SeoEditor seo={content.home.seo} onChange={(seo) => setContent({ ...content, home: { ...content.home, seo } })} />
       <TextField label="Метка над заголовком" value={content.home.eyebrow} onChange={(value) => setContent({ ...content, home: { ...content.home, eyebrow: value } })} />
       <TextField label="Заголовок, строки через Enter" textarea value={content.home.titleLines.join("\n")} onChange={(value) => setContent({ ...content, home: { ...content.home, titleLines: value.split("\n").filter(Boolean) } })} />
       <TextField label="Акцентное слово" value={content.home.accent} onChange={(value) => setContent({ ...content, home: { ...content.home, accent: value } })} />
@@ -219,7 +263,7 @@ function HomeEditor({ content, setContent }: EditorProps) {
       <TextField label="Кнопка калькулятора" value={content.home.primaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, primaryButton: value } })} />
       <TextField label="Кнопка записи" value={content.home.secondaryButton} onChange={(value) => setContent({ ...content, home: { ...content.home, secondaryButton: value } })} />
       <TextField label="Преимущества, каждое с новой строки" textarea value={content.home.heroBenefits.join("\n")} onChange={(value) => setContent({ ...content, home: { ...content.home, heroBenefits: value.split("\n").filter(Boolean) } })} />
-      <TextField label="???????? ???????????, ?????? ? ????? ??????" textarea value={content.advantages.join("\n")} onChange={(value) => setContent({ ...content, advantages: value.split("\n").filter(Boolean) })} />
+      <TextField label="Полоса преимуществ, каждое с новой строки" textarea value={content.advantages.join("\n")} onChange={(value) => setContent({ ...content, advantages: value.split("\n").filter(Boolean) })} />
       <ImageField label="Фото на компьютере" value={content.home.desktopHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, desktopHeroImage: value } })} />
       <ImageField label="Фото на телефоне" value={content.home.mobileHeroImage} onChange={(value) => setContent({ ...content, home: { ...content.home, mobileHeroImage: value } })} />
     </Card>
@@ -296,6 +340,8 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
         <TextField label="Метка" value={calculator.eyebrow} onChange={(value) => setCalculator({ ...calculator, eyebrow: value })} />
         <TextField label="Заголовок" value={calculator.title} onChange={(value) => setCalculator({ ...calculator, title: value })} />
         <TextField label="Описание" textarea value={calculator.text} onChange={(value) => setCalculator({ ...calculator, text: value })} />
+        <TextField label="Подпись результа" value={calculator.resultLabel} onChange={(value) => setCalculator({ ...calculator, resultLabel: value })} />
+        <TextField label="Примечание к результа" textarea value={calculator.resultNote} onChange={(value) => setCalculator({ ...calculator, resultNote: value })} />
         <TextField label="Кнопка" value={calculator.submitLabel} onChange={(value) => setCalculator({ ...calculator, submitLabel: value })} />
       </Card>
       <Card title="Параметры расчета">
@@ -509,7 +555,12 @@ function FooterEditor({ content, setContent }: EditorProps) {
   return (
     <Card title="Футер">
       <TextField label="Описание" textarea value={content.footer.text} onChange={(value) => setContent({ ...content, footer: { ...content.footer, text: value } })} />
+      <TextField label="Заголовок услуг" value={content.footer.servicesTitle} onChange={(value) => setContent({ ...content, footer: { ...content.footer, servicesTitle: value } })} />
+      <TextField label="Заголовок контактов" value={content.footer.contactsTitle} onChange={(value) => setContent({ ...content, footer: { ...content.footer, contactsTitle: value } })} />
       <TextField label="Кнопка записи" value={content.footer.appointmentLabel} onChange={(value) => setContent({ ...content, footer: { ...content.footer, appointmentLabel: value } })} />
+      <TextField label="Копирайт" value={content.footer.copyright} onChange={(value) => setContent({ ...content, footer: { ...content.footer, copyright: value } })} />
+      <TextField label="Нижняя строка" value={content.footer.bottomText} onChange={(value) => setContent({ ...content, footer: { ...content.footer, bottomText: value } })} />
+      <TextField label="Подпись ссылки в админку" value={content.footer.adminLabel} onChange={(value) => setContent({ ...content, footer: { ...content.footer, adminLabel: value } })} />
       {content.footer.services.map((service, index) => (
         <FooterServiceCard
           key={`${service.href}-${index}`}
@@ -539,32 +590,25 @@ function FooterServiceCard({ service, onChange, onRemove }: { service: FooterSer
   );
 }
 
-function PhotosEditor({ content, setContent }: EditorProps) {
+function IdeasEditor({ content, setContent }: EditorProps) {
   return (
-    <Card title="Фото-блоки">
-      {content.facilityPhotos.map((photo, index) => (
-        <ImageTextCard
-          key={`${photo.title}-${index}`}
-          item={photo}
+    <Card title="Информационные карточки">
+      {content.ideas.map((idea, index) => (
+        <ImageTextManager
+          key={`${idea.title}-${index}`}
+          item={idea}
           onChange={(next) => {
-            const facilityPhotos = [...content.facilityPhotos];
-            facilityPhotos[index] = next;
-            setContent({ ...content, facilityPhotos });
+            const ideas = [...content.ideas];
+            ideas[index] = next;
+            setContent({ ...content, ideas });
           }}
+          onRemove={() => setContent({ ...content, ideas: content.ideas.filter((_, itemIndex) => itemIndex !== index) })}
         />
       ))}
+      <button type="button" onClick={() => setContent({ ...content, ideas: [...content.ideas, { title: "Новая карточка", caption: "Описание", image: "", visible: true }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
+        Добавить карточку
+      </button>
     </Card>
-  );
-}
-
-function ImageTextCard({ item, onChange }: { item: ImageTextItem; onChange: (item: ImageTextItem) => void }) {
-  return (
-    <div className="grid gap-4 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-2">
-      <TextField label="Заголовок" value={item.title} onChange={(value) => onChange({ ...item, title: value })} />
-      <TextField label="Описание" textarea value={item.caption} onChange={(value) => onChange({ ...item, caption: value })} />
-      <ImageField label="Фото" value={item.image || ""} onChange={(value) => onChange({ ...item, image: value })} />
-      <ToggleField label="Показывать" checked={item.visible !== false} onChange={(visible) => onChange({ ...item, visible })} />
-    </div>
   );
 }
 
@@ -613,6 +657,170 @@ function ImageTextManager({ item, onChange, onRemove }: { item: ImageTextItem; o
         Удалить фото-блок
       </button>
     </div>
+  );
+}
+
+function SeoEditor({ seo, onChange }: { seo: SeoContent; onChange: (seo: SeoContent) => void }) {
+  return (
+    <div className="grid gap-4 rounded-lg bg-black/18 p-4 md:grid-cols-2">
+      <TextField label="SEO title" value={seo.title} onChange={(title) => onChange({ ...seo, title })} />
+      <TextField label="SEO description" textarea value={seo.description} onChange={(description) => onChange({ ...seo, description })} />
+    </div>
+  );
+}
+
+function PageHeroEditor({ hero, onChange }: { hero: PageHeroContent; onChange: (hero: PageHeroContent) => void }) {
+  return (
+    <div className="grid gap-4 rounded-lg bg-black/18 p-4 md:grid-cols-2">
+      <TextField label="Метка" value={hero.eyebrow} onChange={(eyebrow) => onChange({ ...hero, eyebrow })} />
+      <TextField label="Заголовок" value={hero.title} onChange={(title) => onChange({ ...hero, title })} />
+      <TextField label="Описание" textarea value={hero.text} onChange={(text) => onChange({ ...hero, text })} />
+      <ImageField label="Обложка" value={hero.image} onChange={(image) => onChange({ ...hero, image })} />
+    </div>
+  );
+}
+
+function ServicesEditor({ content, setContent }: EditorProps) {
+  const page = content.pages.services;
+  const setPage = (next: typeof page) => setContent({ ...content, pages: { ...content.pages, services: next } });
+  return (
+    <>
+      <Card title="Общая страница услуг">
+        <SeoEditor seo={page.seo} onChange={(seo) => setPage({ ...page, seo })} />
+        <PageHeroEditor hero={page.hero} onChange={(hero) => setPage({ ...page, hero })} />
+        <TextField label="Заголовок списка услуг" value={page.servicesTitle} onChange={(servicesTitle) => setPage({ ...page, servicesTitle })} />
+        <TextField label="Заголовок мощностей" value={page.capabilitiesTitle} onChange={(capabilitiesTitle) => setPage({ ...page, capabilitiesTitle })} />
+      </Card>
+      {page.items.map((service, index) => (
+        <Card key={service.slug} title={service.name}>
+          <p className="text-xs font-bold text-white/45">URL: /uslugi/{service.slug}</p>
+          <ToggleField label="Показывать на сайте" checked={service.visible} onChange={(visible) => {
+            const items = [...page.items]; items[index] = { ...service, visible }; setPage({ ...page, items });
+          }} />
+          <TextField label="Название" value={service.name} onChange={(name) => {
+            const items = [...page.items]; items[index] = { ...service, name }; setPage({ ...page, items });
+          }} />
+          <SeoEditor seo={service.seo} onChange={(seo) => {
+            const items = [...page.items]; items[index] = { ...service, seo }; setPage({ ...page, items });
+          }} />
+          <PageHeroEditor hero={service.hero} onChange={(hero) => {
+            const items = [...page.items]; items[index] = { ...service, hero }; setPage({ ...page, items });
+          }} />
+          <TextField label="Заголовок карточек" value={service.sectionTitle} onChange={(sectionTitle) => {
+            const items = [...page.items]; items[index] = { ...service, sectionTitle }; setPage({ ...page, items });
+          }} />
+          {service.features.map((feature, featureIndex) => (
+            <ImageTextManager key={`${feature.title}-${featureIndex}`} item={feature} onChange={(next) => {
+              const features = [...service.features]; features[featureIndex] = next;
+              const items = [...page.items]; items[index] = { ...service, features }; setPage({ ...page, items });
+            }} onRemove={() => {
+              const features = service.features.filter((_, itemIndex) => itemIndex !== featureIndex);
+              const items = [...page.items]; items[index] = { ...service, features }; setPage({ ...page, items });
+            }} />
+          ))}
+          <button type="button" onClick={() => {
+            const items = [...page.items]; items[index] = { ...service, features: [...service.features, { title: "Новая работа", caption: "Описание", image: "", visible: true }] }; setPage({ ...page, items });
+          }} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 hover:border-[#c43a52]">Добавить карточку</button>
+        </Card>
+      ))}
+    </>
+  );
+}
+
+function BrandsEditor({ content, setContent }: EditorProps) {
+  const page = content.pages.brands;
+  const setPage = (next: typeof page) => setContent({ ...content, pages: { ...content.pages, brands: next } });
+  return (
+    <>
+      <Card title="Общая страница марок">
+        <SeoEditor seo={page.seo} onChange={(seo) => setPage({ ...page, seo })} />
+        <PageHeroEditor hero={page.hero} onChange={(hero) => setPage({ ...page, hero })} />
+        <TextField label="Подпись карточки" value={page.cardCaption} onChange={(cardCaption) => setPage({ ...page, cardCaption })} />
+        <TextField label="Заголовок мощностей" value={page.capabilitiesTitle} onChange={(capabilitiesTitle) => setPage({ ...page, capabilitiesTitle })} />
+      </Card>
+      {page.items.map((brand, index) => (
+        <Card key={brand.slug} title={brand.name}>
+          <p className="text-xs font-bold text-white/45">URL: /marki/{brand.slug}</p>
+          <ToggleField label="Показывать на сайте" checked={brand.visible} onChange={(visible) => {
+            const items = [...page.items]; items[index] = { ...brand, visible }; setPage({ ...page, items });
+          }} />
+          <TextField label="Название" value={brand.name} onChange={(name) => {
+            const items = [...page.items]; items[index] = { ...brand, name }; setPage({ ...page, items });
+          }} />
+          <SeoEditor seo={brand.seo} onChange={(seo) => {
+            const items = [...page.items]; items[index] = { ...brand, seo }; setPage({ ...page, items });
+          }} />
+          <PageHeroEditor hero={brand.hero} onChange={(hero) => {
+            const items = [...page.items]; items[index] = { ...brand, hero }; setPage({ ...page, items });
+          }} />
+          <TextField label="Заголовок карточек" value={brand.sectionTitle} onChange={(sectionTitle) => {
+            const items = [...page.items]; items[index] = { ...brand, sectionTitle }; setPage({ ...page, items });
+          }} />
+          {brand.cards.map((card, cardIndex) => (
+            <ImageTextManager key={`${card.title}-${cardIndex}`} item={card} onChange={(next) => {
+              const cards = [...brand.cards]; cards[cardIndex] = next;
+              const items = [...page.items]; items[index] = { ...brand, cards }; setPage({ ...page, items });
+            }} onRemove={() => {
+              const cards = brand.cards.filter((_, itemIndex) => itemIndex !== cardIndex);
+              const items = [...page.items]; items[index] = { ...brand, cards }; setPage({ ...page, items });
+            }} />
+          ))}
+          <button type="button" onClick={() => {
+            const items = [...page.items]; items[index] = { ...brand, cards: [...brand.cards, { title: "Новая работа", caption: "Описание", image: "", visible: true }] }; setPage({ ...page, items });
+          }} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 hover:border-[#c43a52]">Добавить карточку</button>
+        </Card>
+      ))}
+    </>
+  );
+}
+
+function SimplePageEditor({ pageKey, title, content, setContent }: EditorProps & { pageKey: "commercial" | "works"; title: string }) {
+  const page = content.pages[pageKey];
+  const setPage = (next: typeof page) => setContent({ ...content, pages: { ...content.pages, [pageKey]: next } });
+  return (
+    <Card title={title}>
+      <SeoEditor seo={page.seo} onChange={(seo) => setPage({ ...page, seo })} />
+      <PageHeroEditor hero={page.hero} onChange={(hero) => setPage({ ...page, hero })} />
+      {page.cards.map((card, index) => (
+        <ImageTextManager key={`${card.title}-${index}`} item={card} onChange={(next) => {
+          const cards = [...page.cards]; cards[index] = next; setPage({ ...page, cards });
+        }} onRemove={() => setPage({ ...page, cards: page.cards.filter((_, itemIndex) => itemIndex !== index) })} />
+      ))}
+      <button type="button" onClick={() => setPage({ ...page, cards: [...page.cards, { title: "Новая карточка", caption: "Описание", image: "", visible: true }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 hover:border-[#c43a52]">
+        Добавить карточку
+      </button>
+    </Card>
+  );
+}
+
+const headerFields: Array<[keyof SiteContent["header"], string]> = [
+  ["servicesLabel", "Меню: Услуги"], ["allServicesLabel", "Меню: Все услуги"],
+  ["brandsLabel", "Меню: Марки"], ["allBrandsLabel", "Меню: Все марки"],
+  ["commercialLabel", "Меню: Коммерческий транспорт"], ["worksLabel", "Меню: Наши работы"],
+  ["reviewsLabel", "Меню: Отзывы"], ["contactsLabel", "Меню: Контакты"], ["appointmentLabel", "Кнопка записи"]
+];
+
+const interfaceFields: Array<[keyof SiteContent["interface"], string, boolean?]> = [
+  ["brandSectionTitle", "Заголовок блока марок"], ["facilityTitle", "Заголовок фотогалереи"], ["facilityText", "Описание фотогалереи", true], ["facilityPhotoLabel", "Подпись на фото"],
+  ["calculatorTransportLabel", "Калькулятор: тип транспорта"], ["calculatorServiceLabel", "Калькулятор: услуга"], ["calculatorSizeLabel", "Калькулятор: объём"], ["calculatorTermPrefix", "Калькулятор: срок"],
+  ["detailsLabel", "Кнопка Подробнее"], ["calculateLabel", "Кнопка Рассчитать"], ["directionLabel", "Метка направления"],
+  ["bookingChoiceEyebrow", "Выбор записи: метка"], ["bookingChoiceTitle", "Выбор записи: заголовок"], ["bookingChoiceText", "Выбор записи: текст", true], ["callbackLabel", "Обратный звонок: кнопка"], ["callbackHint", "Обратный звонок: подсказка"], ["appointmentHint", "Запись: подсказка"],
+  ["callbackTitle", "Заголовок обратного звонка"], ["callbackText", "Текст обратного звонка", true], ["callbackSuccessTitle", "Звонок: успех"], ["callbackSuccessText", "Звонок: текст успеха", true], ["nameLabel", "Поле: имя"], ["namePlaceholder", "Подсказка имени"], ["phoneLabel", "Поле: телефон"], ["callbackSubmitLabel", "Кнопка обратного звонка"],
+  ["appointmentEyebrow", "Запись: метка"], ["appointmentTitle", "Запись: заголовок"], ["appointmentText", "Запись: текст", true], ["appointmentSuccessTitle", "Запись: успех"], ["appointmentSuccessText", "Запись: текст успеха", true], ["dateLabel", "Поле: дата"], ["timeLabel", "Поле: время"], ["problemLabel", "Поле: проблема"], ["problemPlaceholder", "Подсказка проблемы", true], ["appointmentSubmitLabel", "Кнопка записи"],
+  ["leadTitle", "Заявка: заголовок"], ["leadText", "Заявка: текст", true], ["leadSuccessTitle", "Заявка: успех"], ["leadSuccessText", "Заявка: текст успеха", true], ["vehicleTypeLabel", "Поле: тип транспорта"], ["serviceRequestLabel", "Поле: услуга"], ["serviceRequestPlaceholder", "Подсказка услуги", true], ["leadSubmitLabel", "Кнопка заявки"]
+];
+
+function GeneralEditor({ content, setContent }: EditorProps) {
+  return (
+    <>
+      <Card title="Хедер и меню">
+        {headerFields.map(([key, label]) => <TextField key={key} label={label} value={content.header[key]} onChange={(value) => setContent({ ...content, header: { ...content.header, [key]: value } })} />)}
+      </Card>
+      <FooterEditor content={content} setContent={setContent} />
+      <Card title="Формы и общие подписи">
+        {interfaceFields.map(([key, label, textarea]) => <TextField key={key} label={label} textarea={textarea} value={content.interface[key]} onChange={(value) => setContent({ ...content, interface: { ...content.interface, [key]: value } })} />)}
+      </Card>
+    </>
   );
 }
 

@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import * as simpleIcons from "simple-icons";
-import { brands } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
 import { LeadFormModal } from "@/components/lead-form-modal";
 import { SiteFooter as SharedSiteFooter } from "@/components/site-footer";
@@ -101,18 +100,18 @@ export function ManagedHomePage({ content }: { content: SiteContent }) {
 
   return (
     <main className="site-shell min-h-screen overflow-hidden bg-[#08090b] text-[#f5f1f2]">
-      <SiteHeader onAppointment={openAppointment} contact={content.contact} />
+      <SiteHeader onAppointment={openAppointment} content={content} />
       <Hero content={content} onCalculate={scrollToCalculator} onAppointment={openAppointment} />
       <InsurancePartnersStrip title={content.insurance.title} partners={content.insurance.partners} />
       <AdvantagesBar advantages={content.advantages} />
-      <BrandLogos />
-      <PriceCalculator calculator={content.calculator} onLead={() => setIsLeadOpen(true)} />
-      <QualityIdeas ideas={content.ideas} onAppointment={openAppointment} />
+      <BrandLogos content={content} />
+      <PriceCalculator calculator={content.calculator} copy={content.interface} onLead={() => setIsLeadOpen(true)} />
+      <QualityIdeas ideas={content.ideas} appointmentLabel={content.header.appointmentLabel} onAppointment={openAppointment} />
       <ReviewsSection title={content.reviews.title} subtitle={content.reviews.subtitle} reviews={content.reviews.items} />
-      <FacilitySections photos={content.facilityPhotos} />
+      <FacilitySections photos={content.facilityPhotos} copy={content.interface} />
       <SharedSiteFooter content={content} />
-      <LeadFormModal open={isLeadOpen} onClose={() => setIsLeadOpen(false)} />
-      <AppointmentModal open={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} />
+      <LeadFormModal open={isLeadOpen} onClose={() => setIsLeadOpen(false)} copy={content.interface} transports={content.calculator.transports} />
+      <AppointmentModal open={isAppointmentOpen} onClose={() => setIsAppointmentOpen(false)} copy={content.interface} />
     </main>
   );
 }
@@ -132,7 +131,7 @@ function Hero({
         <div className="absolute inset-0 hidden max-w-none md:block">
           <Image
             src={content.home.desktopHeroImage || "/images/hero-stoavto-new.png"}
-            alt="СТОАВТО: легковой автомобиль и микроавтобус в современном автотехцентре"
+            alt="Легковой автомобиль и микроавтобус в техцентре СТОАВТО"
             fill
             priority
             sizes="100vw"
@@ -140,7 +139,7 @@ function Hero({
           />
         </div>
         <div className="hero-mask pointer-events-none absolute inset-0 z-10 hidden md:block" />
-        <ServiceHotspots onCalculate={onCalculate} />
+        <ServiceHotspots content={content} onCalculate={onCalculate} />
         <div className="pointer-events-none relative z-20 flex px-5 pb-8 pt-24 sm:px-8 md:min-h-[700px] md:pb-12 lg:px-10 xl:min-h-[760px]">
           <div className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-start pb-4 md:items-center md:pb-0">
             <div className="max-w-[620px]">
@@ -183,21 +182,29 @@ function Hero({
         <div className="relative mx-auto aspect-[3/2] max-w-2xl overflow-hidden rounded-lg border border-white/10">
           <Image src={content.home.mobileHeroImage} alt="СТОАВТО" fill sizes="100vw" className="object-cover object-center" />
           <div className="mobile-hero-photo-mask pointer-events-none absolute inset-0 z-10" />
-          <ServiceHotspots mode="mobile" onCalculate={onCalculate} />
+          <ServiceHotspots content={content} mode="mobile" onCalculate={onCalculate} />
         </div>
       </section>
     </>
   );
 }
 
-function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () => void; mode?: "desktop" | "mobile" }) {
+function ServiceHotspots({ content, onCalculate, mode = "desktop" }: { content: SiteContent; onCalculate: () => void; mode?: "desktop" | "mobile" }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const isMobile = mode === "mobile";
   const hoverCloseTimer = useRef<number | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const active = isMobile ? pinned : hovered;
-  const activeSpot = hotspots.find((spot) => spot.id === active);
+  const managedSpots = hotspots.map((spot) => {
+    if (spot.id === "commercial") {
+      return { ...spot, label: content.pages.commercial.hero.eyebrow, description: content.pages.commercial.hero.text };
+    }
+    const slugs: Record<string, string> = { body: "kuzovnoy-remont", paint: "pokraska-avto", diagnostics: "diagnostika", alignment: "razval-shozhdenie" };
+    const service = content.pages.services.items.find((item) => item.slug === slugs[spot.id]);
+    return service ? { ...spot, label: service.name, description: service.hero.text } : spot;
+  });
+  const activeSpot = managedSpots.find((spot) => spot.id === active);
 
   const clearCloseTimer = () => {
     if (hoverCloseTimer.current !== null) {
@@ -249,7 +256,7 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
 
   return (
     <div className={`pointer-events-none absolute inset-0 z-30 ${isMobile ? "block" : "hidden md:block"}`}>
-      {hotspots.map((spot) => {
+      {managedSpots.map((spot) => {
         const isActive = active === spot.id;
         const point = isMobile ? spot.mobilePoint : spot.point;
         const labelStyle = hotspotLabelStyles[spot.id as keyof typeof hotspotLabelStyles];
@@ -298,12 +305,12 @@ function ServiceHotspots({ onCalculate, mode = "desktop" }: { onCalculate: () =>
               X
             </button>
           )}
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">Направление работ</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">{content.interface.directionLabel}</p>
           <h3 className={`mt-2 font-black text-white ${isMobile ? "pr-10 text-lg" : "text-base"}`}>{activeSpot.label}</h3>
           <p className="mt-2 text-sm leading-5 text-white/82">{activeSpot.description}</p>
           <div className="mt-4 flex gap-2">
-            <Link href={activeSpot.href} className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]">Подробнее</Link>
-            <button type="button" onClick={onCalculate} className="bg-[#9e1f36] px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-[#b72b43]">Рассчитать</button>
+            <Link href={activeSpot.href} className="rounded-lg border border-white/16 px-3.5 py-2.5 text-xs font-bold text-white transition hover:border-[#c43a52]">{content.interface.detailsLabel}</Link>
+            <button type="button" onClick={onCalculate} className="bg-[#9e1f36] px-3.5 py-2.5 text-xs font-bold text-white transition hover:bg-[#b72b43]">{content.interface.calculateLabel}</button>
           </div>
         </motion.div>
         )}
@@ -331,7 +338,7 @@ function InsurancePartnersStrip({ title, partners }: { title: string; partners: 
 
   return (
     <section className="border-b border-white/10 bg-[#101217] px-5 py-5 sm:px-8 lg:px-10">
-      <h2 className="font-display mb-4 text-left text-xl font-black text-white sm:text-2xl">{title}</h2>
+      <h2 className="font-display mb-4 text-center text-xl font-black text-white sm:text-2xl">{title}</h2>
       <div className="partner-marquee overflow-hidden rounded-lg border border-[#5a1a28]/55 bg-[#07080b]">
         <div className="partner-marquee-track flex w-max items-center gap-4 py-4">
           {marqueeItems.map((partner, index) => (
@@ -364,11 +371,12 @@ function AdvantagesBar({ advantages }: { advantages: string[] }) {
   );
 }
 
-function BrandLogos() {
+function BrandLogos({ content }: { content: SiteContent }) {
+  const brands = content.pages.brands.items.filter((brand) => brand.visible);
   return (
     <section className="bg-[#0b0c10] px-5 py-16 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
-        <h2 className="font-display max-w-2xl text-3xl font-black text-white sm:text-5xl">Обслуживаем популярные марки</h2>
+        <h2 className="font-display max-w-2xl text-3xl font-black text-white sm:text-5xl">{content.interface.brandSectionTitle}</h2>
         <div className="mt-9 grid overflow-hidden rounded-lg border border-white/10 sm:grid-cols-3 lg:grid-cols-5">
           {brands.map((brand) => (
             <Link key={brand.slug} href={`/marki/${brand.slug}`} className="group flex h-28 flex-col items-center justify-center gap-3 border-b border-r border-white/10 bg-white/[0.035] px-4 text-center text-white transition hover:bg-white/[0.065]">
@@ -382,7 +390,7 @@ function BrandLogos() {
   );
 }
 
-function PriceCalculator({ calculator, onLead }: { calculator: CalculatorContent; onLead: () => void }) {
+function PriceCalculator({ calculator, copy, onLead }: { calculator: CalculatorContent; copy: SiteContent["interface"]; onLead: () => void }) {
   const visibleServices = calculator.services.filter((item) => item.visible);
   const visibleToggles = calculator.toggles.filter((item) => item.visible);
   const [transport, setTransport] = useState(calculator.transports[0]?.value ?? "car");
@@ -418,9 +426,9 @@ function PriceCalculator({ calculator, onLead }: { calculator: CalculatorContent
         </div>
         <div className="rounded-lg border border-white/12 bg-white/[0.04] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:p-7">
           <div className="grid gap-5 md:grid-cols-2">
-            <SelectField label="Тип транспорта" value={transport} onChange={setTransport} options={calculator.transports} />
-            <SelectField label="Услуга" value={service} onChange={setService} options={visibleServices} />
-            <SelectField label="Объём работ" value={size} onChange={setSize} options={calculator.sizes} />
+            <SelectField label={copy.calculatorTransportLabel} value={transport} onChange={setTransport} options={calculator.transports} />
+            <SelectField label={copy.calculatorServiceLabel} value={service} onChange={setService} options={visibleServices} />
+            <SelectField label={copy.calculatorSizeLabel} value={size} onChange={setSize} options={calculator.sizes} />
             <div className="grid gap-3 rounded-lg border border-white/12 bg-black/20 p-4">
               {visibleToggles.map((toggle) => (
                 <label key={toggle.value} className="flex items-center justify-between gap-4 text-sm font-bold text-white">
@@ -433,7 +441,7 @@ function PriceCalculator({ calculator, onLead }: { calculator: CalculatorContent
           <div className="mt-6 rounded-lg border border-[#c43a52]/45 bg-[#9e1f36]/14 p-5">
             <p className="text-sm font-bold uppercase tracking-[0.14em] text-white/82">{calculator.resultLabel}</p>
             <p className="font-display mt-2 text-4xl font-black text-white">{formatRub(low)} - {formatRub(high)}</p>
-            <p className="mt-3 text-sm leading-6 text-white/86">Ориентировочный срок: {selected?.days}. {calculator.resultNote}</p>
+            <p className="mt-3 text-sm leading-6 text-white/86">{copy.calculatorTermPrefix} {selected?.days}. {calculator.resultNote}</p>
             <button type="button" onClick={onLead} className="mt-5 bg-white px-5 py-3 text-sm font-extrabold text-[#111318] transition hover:bg-[#f4d9de]">
               {calculator.submitLabel}
             </button>
@@ -455,19 +463,22 @@ function SelectField({ label, value, onChange, options }: { label: string; value
   );
 }
 
-function QualityIdeas({ ideas, onAppointment }: { ideas: ImageTextItem[]; onAppointment: () => void }) {
+function QualityIdeas({ ideas, appointmentLabel, onAppointment }: { ideas: ImageTextItem[]; appointmentLabel: string; onAppointment: () => void }) {
   return (
     <section className="border-t border-white/10 bg-[#0b0c10] px-5 py-16 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
         <div className="grid gap-5 md:grid-cols-4">
           {ideas.filter((idea) => idea.visible !== false).map((idea) => (
-            <article key={idea.title} className="rounded-lg border border-white/12 bg-white/[0.04] p-5">
+            <article key={idea.title} className="overflow-hidden rounded-lg border border-white/12 bg-white/[0.04]">
+              {idea.image && <div className="relative aspect-[4/3]"><Image src={idea.image} alt={idea.title} fill sizes="(min-width: 768px) 25vw, 100vw" className="object-cover" /></div>}
+              <div className="p-5">
               <h3 className="font-display text-lg font-black text-white">{idea.title}</h3>
               <p className="mt-3 text-sm leading-6 text-white/82">{idea.caption}</p>
+              </div>
             </article>
           ))}
         </div>
-        <button type="button" onClick={onAppointment} className="mt-6 bg-[#9e1f36] px-6 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]">Записаться на удобное время</button>
+        <button type="button" onClick={onAppointment} className="mt-6 bg-[#9e1f36] px-6 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]">{appointmentLabel}</button>
       </div>
     </section>
   );
@@ -505,20 +516,20 @@ function ReviewsSection({ title, subtitle, reviews }: { title: string; subtitle:
   );
 }
 
-function FacilitySections({ photos }: { photos: ImageTextItem[] }) {
+function FacilitySections({ photos, copy }: { photos: ImageTextItem[]; copy: SiteContent["interface"] }) {
   return (
     <section className="border-t border-white/10 bg-[#08090b] px-5 py-18 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-[1440px]">
         <div className="max-w-3xl">
-          <h2 className="font-display text-3xl font-black text-white sm:text-5xl">Места под реальные фотографии мощностей автотехцентра</h2>
-          <p className="mt-5 text-base leading-7 text-white">Оборудование, процесс и выполненные работы.</p>
+          <h2 className="font-display text-3xl font-black text-white sm:text-5xl">{copy.facilityTitle}</h2>
+          <p className="mt-5 text-base leading-7 text-white">{copy.facilityText}</p>
         </div>
         <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {photos.filter((item) => item.visible !== false).map((item, index) => (
             <article key={`${item.title}-${index}`} className={`group overflow-hidden rounded-lg border border-white/12 bg-white/[0.04] ${index === 0 || index === 2 ? "md:col-span-2" : ""}`}>
               <div className="relative min-h-[250px] overflow-hidden bg-[#14161c]">
                 {item.image ? <Image src={item.image} alt={item.title} fill sizes="(min-width: 1280px) 25vw, 50vw" className="object-cover" /> : <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(158,31,54,0.12)_42%,rgba(255,255,255,0.02))]" />}
-                <span className="absolute left-6 top-6 rounded-lg border border-white/14 bg-black/32 px-3 py-1 text-xs font-bold text-white backdrop-blur">Фото компании</span>
+                <span className="absolute left-6 top-6 rounded-lg bg-black/55 px-3 py-1 text-xs font-bold text-white">{copy.facilityPhotoLabel}</span>
               </div>
               <div className="p-6">
                 <h3 className="font-display text-lg font-black text-white">{item.title}</h3>
@@ -532,47 +543,11 @@ function FacilitySections({ photos }: { photos: ImageTextItem[] }) {
   );
 }
 
-function SiteFooter({ content, onAppointment }: { content: SiteContent; onAppointment: () => void }) {
-  return (
-    <footer id="contacts" className="border-t border-white/10 bg-[#050607] px-5 py-10 text-white sm:px-8 lg:px-10">
-      <div className="mx-auto grid max-w-[1440px] gap-8 md:grid-cols-[1.1fr_0.9fr_0.9fr]">
-        <div>
-          <Image src="/images/stoavto-logo-transparent.png" alt="СТОАВТО" width={1759} height={306} className="h-auto w-56 object-contain" />
-          <p className="mt-5 max-w-md text-sm leading-6 text-white/68">{content.footer.text}</p>
-        </div>
-        <div>
-          <h2 className="text-sm font-black uppercase tracking-[0.16em] text-white/82">{content.footer.servicesTitle}</h2>
-          <ul className="mt-4 grid gap-2 text-sm text-white/66">
-            {content.footer.services.filter((item) => item.visible).map((item) => (
-              <li key={item.href}><Link href={item.href} className="transition hover:text-white">{item.label}</Link></li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h2 className="text-sm font-black uppercase tracking-[0.16em] text-white/82">{content.footer.contactsTitle}</h2>
-          <a href={content.contact.phoneHref} className="mt-4 block text-xl font-black text-white">{content.contact.phone}</a>
-          <p className="mt-2 text-sm text-white/66">{content.contact.hours}</p>
-          <button type="button" onClick={onAppointment} className="mt-5 bg-[#9e1f36] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[#b72b43]">{content.footer.appointmentLabel}</button>
-        </div>
-      </div>
-      <div className="mx-auto mt-8 flex max-w-[1440px] flex-col gap-2 border-t border-white/10 pt-5 text-xs text-white/42 sm:flex-row sm:items-center sm:justify-between">
-        <span>{content.footer.copyright}</span>
-        <span className="flex items-center gap-3">
-          {content.footer.bottomText}
-          <Link href="/admin" className="rounded border border-white/10 px-2 py-1 text-[11px] font-bold text-white/40 transition hover:border-[#c43a52]/60 hover:text-white/80">
-            Админ
-          </Link>
-        </span>
-      </div>
-    </footer>
-  );
-}
-
 function formatRub(value: number) {
   return new Intl.NumberFormat("ru-RU").format(value) + " ₽";
 }
 
-function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
+function BrandMark({ brand }: { brand: SiteContent["pages"]["brands"]["items"][number] }) {
   const icons = simpleIcons as unknown as Record<string, SimpleIcon | undefined>;
   const icon = brand.icon ? icons[brand.icon] : undefined;
 

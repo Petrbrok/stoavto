@@ -57,6 +57,7 @@ function normalizeContent(content: SiteContent): SiteContent {
   return {
     ...defaultSiteContent,
     ...content,
+    header: { ...defaultSiteContent.header, ...content.header },
     contact: { ...defaultSiteContent.contact, ...content.contact, phones },
     home: { ...defaultSiteContent.home, ...content.home },
     insurance: { ...defaultSiteContent.insurance, ...content.insurance },
@@ -69,7 +70,38 @@ function normalizeContent(content: SiteContent): SiteContent {
       }))
     },
     reviews: { ...defaultSiteContent.reviews, ...content.reviews },
-    footer: { ...defaultSiteContent.footer, ...content.footer }
+    footer: { ...defaultSiteContent.footer, ...content.footer },
+    pages: {
+      services: {
+        ...defaultSiteContent.pages.services,
+        ...content.pages?.services,
+        seo: { ...defaultSiteContent.pages.services.seo, ...content.pages?.services?.seo },
+        hero: { ...defaultSiteContent.pages.services.hero, ...content.pages?.services?.hero },
+        items: content.pages?.services?.items?.length ? content.pages.services.items : defaultSiteContent.pages.services.items
+      },
+      brands: {
+        ...defaultSiteContent.pages.brands,
+        ...content.pages?.brands,
+        seo: { ...defaultSiteContent.pages.brands.seo, ...content.pages?.brands?.seo },
+        hero: { ...defaultSiteContent.pages.brands.hero, ...content.pages?.brands?.hero },
+        items: content.pages?.brands?.items?.length ? content.pages.brands.items : defaultSiteContent.pages.brands.items
+      },
+      commercial: {
+        ...defaultSiteContent.pages.commercial,
+        ...content.pages?.commercial,
+        seo: { ...defaultSiteContent.pages.commercial.seo, ...content.pages?.commercial?.seo },
+        hero: { ...defaultSiteContent.pages.commercial.hero, ...content.pages?.commercial?.hero },
+        cards: content.pages?.commercial?.cards?.length ? content.pages.commercial.cards : defaultSiteContent.pages.commercial.cards
+      },
+      works: {
+        ...defaultSiteContent.pages.works,
+        ...content.pages?.works,
+        seo: { ...defaultSiteContent.pages.works.seo, ...content.pages?.works?.seo },
+        hero: { ...defaultSiteContent.pages.works.hero, ...content.pages?.works?.hero },
+        cards: content.pages?.works?.cards?.length ? content.pages.works.cards : defaultSiteContent.pages.works.cards
+      }
+    },
+    interface: { ...defaultSiteContent.interface, ...content.interface }
   };
 }
 

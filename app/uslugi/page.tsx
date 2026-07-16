@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
 import { InnerFooter, InnerHeader, InnerHero, PhotoCapabilityGrid, ServiceLinks } from "@/components/inner-page";
-import { mainPages } from "@/data/site";
+import { getSiteContent } from "@/lib/content-store";
 
-const page = mainPages.find((item) => item.path === "/uslugi")!;
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: page.title,
-  description: page.description
-};
+export function generateMetadata(): Metadata {
+  return getSiteContent().pages.services.seo;
+}
 
 export default function ServicesPage() {
+  const content = getSiteContent();
+  const page = content.pages.services;
   return (
     <main className="site-shell min-h-screen bg-[#08090b] text-white">
-      <InnerHeader />
-      <InnerHero
-        eyebrow="Услуги СТОАВТО"
-        title="Полный цикл ремонта в одном автотехцентре"
-        text="Кузовной ремонт, покраска, диагностика, развал-схождение и слесарные работы для легковых автомобилей и коммерческого транспорта."
-      />
-      <ServiceLinks />
-      <PhotoCapabilityGrid />
-      <InnerFooter />
+      <InnerHeader content={content} />
+      <InnerHero hero={page.hero} />
+      <ServiceLinks content={content} />
+      <PhotoCapabilityGrid title={page.capabilitiesTitle} photos={content.facilityPhotos} />
+      <InnerFooter content={content} />
     </main>
   );
 }

@@ -52,12 +52,12 @@ export function SiteFooter({ content }: { content: SiteContent }) {
           <span className="flex items-center gap-3">
             {content.footer.bottomText}
             <Link href="/admin" className="rounded border border-white/10 px-2 py-1 text-[11px] font-bold text-white/40 transition hover:border-[#c43a52]/60 hover:text-white/80">
-              Админ
+              {content.footer.adminLabel}
             </Link>
           </span>
         </div>
       </footer>
-      <AppointmentModal open={appointmentOpen} onClose={() => setAppointmentOpen(false)} />
+      <AppointmentModal open={appointmentOpen} onClose={() => setAppointmentOpen(false)} copy={content.interface} />
     </>
   );
 }

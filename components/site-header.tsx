@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { type FormEvent, type MouseEvent, useEffect, useState } from "react";
 import { CONTACT, brands, services } from "@/data/site";
 import { AppointmentModal } from "@/components/appointment-modal";
-import type { ContactContent } from "@/types/site-content";
+import type { SiteContent } from "@/types/site-content";
 
 type BusinessTime = { hour: number; minute: number };
 type MenuKey = "services" | "brands";
@@ -15,13 +15,6 @@ type ThemeMode = "light" | "dark";
 
 const OPEN_FROM: BusinessTime = { hour: 10, minute: 0 };
 const OPEN_TO: BusinessTime = { hour: 21, minute: 0 };
-
-const staticLinks = [
-  { label: "Коммерческий транспорт", href: "/kommercheskiy-transport" },
-  { label: "Наши работы", href: "/raboty" },
-  { label: "Отзывы", href: "/#reviews" },
-  { label: "Контакты", href: "/#contacts" }
-];
 
 function formatTime(hours: number, minutes: number) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
@@ -88,7 +81,20 @@ function OpenStatusBadge({
   );
 }
 
-export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment?: () => void; contact?: ContactContent }) {
+export function SiteHeader({ onAppointment, content }: { onAppointment?: () => void; content?: Pick<SiteContent, "contact" | "header" | "interface" | "pages"> }) {
+  const contact: SiteContent["contact"] = content?.contact ?? { ...CONTACT, phones: [{ label: CONTACT.phone, href: CONTACT.phoneHref, visible: true }] };
+  const header = content?.header ?? {
+    servicesLabel: "Услуги", allServicesLabel: "Все услуги", brandsLabel: "Марки", allBrandsLabel: "Все марки",
+    commercialLabel: "Коммерческий транспорт", worksLabel: "Наши работы", reviewsLabel: "Отзывы", contactsLabel: "Контакты", appointmentLabel: "Записаться на удобное время"
+  };
+  const staticLinks = [
+    { label: header.commercialLabel, href: "/kommercheskiy-transport" },
+    { label: header.worksLabel, href: "/raboty" },
+    { label: header.reviewsLabel, href: "/#reviews" },
+    { label: header.contactsLabel, href: "/#contacts" }
+  ];
+  const serviceItems = content?.pages.services.items ?? services.map((service) => ({ ...service, visible: true }));
+  const brandItems = content?.pages.brands.items ?? brands.map((brand) => ({ ...brand, visible: true }));
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -109,7 +115,8 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
     const systemLight = window.matchMedia("(prefers-color-scheme: light)").matches;
     const nextTheme = saved === "light" || saved === "dark" ? saved : systemLight ? "light" : "dark";
     document.documentElement.dataset.theme = nextTheme;
-    setThemeMode(nextTheme);
+    const timer = window.setTimeout(() => setThemeMode(nextTheme), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -162,26 +169,26 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center gap-3 text-[12px] font-bold text-white xl:flex 2xl:gap-5 2xl:text-[13px]">
             <DropdownMenu
-              label="Услуги"
+              label={header.servicesLabel}
               active={openMenu === "services"}
               onOpen={() => setOpenMenu("services")}
               onClose={() => setOpenMenu(null)}
               items={[
-                { label: "Все услуги", href: "/uslugi" },
-                ...services.map((service) => ({
+                { label: header.allServicesLabel, href: "/uslugi" },
+                ...serviceItems.filter((service) => service.visible).map((service) => ({
                   label: service.name,
                   href: `/uslugi/${service.slug}`
                 }))
               ]}
             />
             <DropdownMenu
-              label="Марки"
+              label={header.brandsLabel}
               active={openMenu === "brands"}
               onOpen={() => setOpenMenu("brands")}
               onClose={() => setOpenMenu(null)}
               items={[
-                { label: "Все марки", href: "/marki" },
-                ...brands.map((brand) => ({
+                { label: header.allBrandsLabel, href: "/marki" },
+                ...brandItems.filter((brand) => brand.visible).map((brand) => ({
                   label: brand.name,
                   href: `/marki/${brand.slug}`
                 }))
@@ -197,7 +204,7 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
           <div className="ml-auto hidden shrink-0 items-center gap-2 xl:flex 2xl:gap-3">
             <OpenStatusBadge />
             <button type="button" onClick={toggleTheme} className="theme-toggle" aria-label={themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"} title={themeMode === "light" ? "Темная тема" : "Светлая тема"}>
-              <span className="theme-toggle-icon" aria-hidden="true" />
+              <span className="theme-toggle-glyph" aria-hidden="true">{themeMode === "light" ? "☾" : "☀︎"}</span>
             </button>
             <div className="grid min-w-max gap-0.5 text-right">
               {headerPhones.map((phone) => (
@@ -212,14 +219,14 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
               onClick={() => setBookingChoiceOpen(true)}
               className="min-h-11 whitespace-nowrap bg-[#9e1f36] px-3.5 py-3 text-[12px] font-extrabold text-white transition duration-300 hover:bg-[#b72b43] active:translate-y-px 2xl:px-5 2xl:text-[13px]"
             >
-              Записаться на удобное время
+              {header.appointmentLabel}
             </button>
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-2 xl:hidden">
             <OpenStatusBadge className="header-open-status" />
-            <button type="button" onClick={toggleTheme} className="theme-toggle h-11 w-11" aria-label={themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"}>
-              <span className="theme-toggle-icon" aria-hidden="true" />
+            <button type="button" onClick={toggleTheme} className="theme-toggle mobile-header-theme-toggle h-11 w-11" aria-label={themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"}>
+              <span className="theme-toggle-glyph" aria-hidden="true">{themeMode === "light" ? "☾" : "☀︎"}</span>
             </button>
             <button
               type="button"
@@ -263,13 +270,13 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
               onClick={closeMobile}
             />
             <motion.aside
-              className="fixed bottom-0 right-0 top-[68px] z-50 w-full max-w-md overflow-y-auto border-l border-white/10 bg-[#0b0c10] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.58)] xl:hidden"
+              className="fixed bottom-0 right-0 top-[68px] z-50 w-full max-w-md overflow-y-auto border-l border-white/10 bg-[#0b0c10] p-4 shadow-[0_30px_90px_rgba(0,0,0,0.58)] xl:hidden"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.34, ease: "easeOut" }}
             >
-              <div className="mb-5 rounded-lg border border-white/12 bg-white/[0.04] p-5">
+              <div className="mb-3 rounded-lg border border-white/12 bg-white/[0.04] p-4">
                 <div className="grid gap-1">
                   {headerPhones.map((phone) => (
                     <a key={`${phone.href}-${phone.label}`} href={phone.href} className="block whitespace-nowrap text-lg font-black text-white">
@@ -284,20 +291,28 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
                     closeMobile();
                     setBookingChoiceOpen(true);
                   }}
-                  className="mt-5 w-full bg-[#9e1f36] px-5 py-4 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+                  className="mt-3 w-full bg-[#9e1f36] px-5 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
                 >
-                  Записаться на удобное время
+                  {header.appointmentLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="mobile-theme-button mt-2 flex w-full items-center justify-between rounded-lg border border-white/12 bg-white/[0.04] px-4 py-3 text-left text-sm font-bold text-white transition hover:border-[#c43a52]/60"
+                >
+                  <span>{themeMode === "light" ? "Включить темную тему" : "Включить светлую тему"}</span>
+                  <span className="theme-toggle-glyph" aria-hidden="true">{themeMode === "light" ? "☾" : "☀︎"}</span>
                 </button>
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid gap-2">
                 <MobileAccordion
-                  label="Услуги"
+                  label={header.servicesLabel}
                   open={mobileSection === "services"}
                   onToggle={() => setMobileSection(mobileSection === "services" ? null : "services")}
                   items={[
-                    { label: "Все услуги", href: "/uslugi" },
-                    ...services.map((service) => ({
+                    { label: header.allServicesLabel, href: "/uslugi" },
+                    ...serviceItems.filter((service) => service.visible).map((service) => ({
                       label: service.name,
                       href: `/uslugi/${service.slug}`
                     }))
@@ -305,12 +320,12 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
                   onNavigate={closeMobile}
                 />
                 <MobileAccordion
-                  label="Марки"
+                  label={header.brandsLabel}
                   open={mobileSection === "brands"}
                   onToggle={() => setMobileSection(mobileSection === "brands" ? null : "brands")}
                   items={[
-                    { label: "Все марки", href: "/marki" },
-                    ...brands.map((brand) => ({
+                    { label: header.allBrandsLabel, href: "/marki" },
+                    ...brandItems.filter((brand) => brand.visible).map((brand) => ({
                       label: brand.name,
                       href: `/marki/${brand.slug}`
                     }))
@@ -322,7 +337,7 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
                     key={item.href}
                     href={item.href}
                     onClick={closeMobile}
-                    className="rounded-lg border border-white/12 bg-white/[0.04] px-4 py-4 text-base font-bold text-white transition hover:border-[#c43a52]/60"
+                    className="rounded-lg border border-white/12 bg-white/[0.04] px-4 py-3 text-sm font-bold text-white transition hover:border-[#c43a52]/60"
                   >
                     {item.label}
                   </Link>
@@ -345,11 +360,12 @@ export function SiteHeader({ onAppointment, contact = CONTACT }: { onAppointment
           setBookingChoiceOpen(false);
           setCallbackOpen(true);
         }}
+        copy={content?.interface}
       />
-      <CallbackModal open={callbackOpen} onClose={() => setCallbackOpen(false)} />
+      <CallbackModal open={callbackOpen} onClose={() => setCallbackOpen(false)} copy={content?.interface} />
 
       {!onAppointment && (
-        <AppointmentModal open={fallbackAppointmentOpen} onClose={() => setFallbackAppointmentOpen(false)} />
+        <AppointmentModal open={fallbackAppointmentOpen} onClose={() => setFallbackAppointmentOpen(false)} copy={content?.interface} />
       )}
     </>
   );
@@ -359,18 +375,20 @@ function BookingChoiceModal({
   open,
   onClose,
   onAppointment,
-  onCallback
+  onCallback,
+  copy
 }: {
   open: boolean;
   onClose: () => void;
   onAppointment: () => void;
   onCallback: () => void;
+  copy?: SiteContent["interface"];
 }) {
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm sm:place-items-center sm:p-4"
+          className="modal-backdrop fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm backdrop-saturate-[0.92] sm:place-items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -381,17 +399,17 @@ function BookingChoiceModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 22, scale: 0.98 }}
             transition={{ duration: 0.24 }}
-            className="w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
+            className="glass-modal-panel w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">
-                  Онлайн-консультация
+                  {copy?.bookingChoiceEyebrow ?? "Онлайн-консультация"}
                 </p>
-                <h2 className="mt-2 text-2xl font-black leading-tight text-white">Что удобнее?</h2>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-white">{copy?.bookingChoiceTitle ?? "Что удобнее?"}</h2>
                 <p className="mt-2 text-sm leading-6 text-white/64">
-                  Можно выбрать точную дату и время или оставить контакты для обратного звонка.
+                  {copy?.bookingChoiceText ?? "Можно выбрать точную дату и время или оставить контакты для обратного звонка."}
                 </p>
               </div>
               <button
@@ -407,18 +425,18 @@ function BookingChoiceModal({
               <button
                 type="button"
                 onClick={onAppointment}
-                className="rounded-lg border border-[#c43a52]/50 bg-[#9e1f36] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
+                className="booking-choice booking-choice-primary rounded-lg border border-[#c43a52]/50 bg-[#9e1f36] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
               >
-                Записаться на удобное время
-                <span className="mt-2 block text-xs font-semibold leading-5 text-white/72">Дата и время в форме записи.</span>
+                {copy?.appointmentSubmitLabel ?? "Записаться на удобное время"}
+                <span className="booking-choice-hint mt-2 block text-xs font-semibold leading-5 text-white/72">{copy?.appointmentHint ?? "Дата и время в форме записи."}</span>
               </button>
               <button
                 type="button"
                 onClick={onCallback}
-                className="rounded-lg border border-white/14 bg-white/[0.05] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:border-[#c43a52]/60 hover:bg-white/[0.08]"
+                className="booking-choice booking-choice-secondary rounded-lg border border-white/14 bg-white/[0.05] px-5 py-4 text-left text-sm font-extrabold text-white transition hover:border-[#c43a52]/60 hover:bg-white/[0.08]"
               >
-                Получить обратный звонок
-                <span className="mt-2 block text-xs font-semibold leading-5 text-white/72">Только имя и телефон.</span>
+                {copy?.callbackLabel ?? "Получить обратный звонок"}
+                <span className="booking-choice-hint mt-2 block text-xs font-semibold leading-5 text-white/72">{copy?.callbackHint ?? "Только имя и телефон."}</span>
               </button>
             </div>
           </motion.div>
@@ -428,7 +446,7 @@ function BookingChoiceModal({
   );
 }
 
-function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function CallbackModal({ open, onClose, copy }: { open: boolean; onClose: () => void; copy?: SiteContent["interface"] }) {
   const [sent, setSent] = useState(false);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -440,7 +458,7 @@ function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm sm:place-items-center sm:p-4"
+          className="modal-backdrop fixed inset-0 z-[90] grid place-items-end bg-black/72 p-2 backdrop-blur-sm backdrop-saturate-[0.92] sm:place-items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -451,7 +469,7 @@ function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 22, scale: 0.98 }}
             transition={{ duration: 0.24 }}
-            className="w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
+            className="glass-modal-panel w-full max-w-xl border border-white/12 bg-[#101217] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -459,9 +477,9 @@ function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#c43a52]">
                   Обратный звонок
                 </p>
-                <h2 className="mt-2 text-2xl font-black leading-tight text-white">Получить онлайн-консультацию</h2>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-white">{copy?.callbackTitle ?? "Получить онлайн-консультацию"}</h2>
                 <p className="mt-2 text-sm leading-6 text-white/64">
-                  Оставьте имя и номер. Менеджер перезвонит и подскажет по ремонту.
+                  {copy?.callbackText ?? "Оставьте имя и номер. Менеджер перезвонит и подскажет по ремонту."}
                 </p>
               </div>
               <button
@@ -476,21 +494,21 @@ function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
 
             {sent ? (
               <div className="mt-6 rounded-lg border border-[#c43a52]/35 bg-[#9e1f36]/12 p-5">
-                <p className="text-lg font-black text-white">Заявка на звонок отправлена.</p>
-                <p className="mt-2 text-sm leading-6 text-white/64">Мы свяжемся с вами в рабочее время.</p>
+                <p className="text-lg font-black text-white">{copy?.callbackSuccessTitle ?? "Заявка на звонок отправлена."}</p>
+                <p className="mt-2 text-sm leading-6 text-white/64">{copy?.callbackSuccessText ?? "Мы свяжемся с вами в рабочее время."}</p>
               </div>
             ) : (
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
                 <label className="grid gap-2 text-sm font-bold text-white/80">
-                  Имя
+                  {copy?.nameLabel ?? "Имя"}
                   <input
                     name="name"
-                    placeholder="Ваше имя"
+                    placeholder={copy?.namePlaceholder ?? "Ваше имя"}
                     className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition placeholder:text-white/34 focus:border-[#c43a52]"
                   />
                 </label>
                 <label className="grid gap-2 text-sm font-bold text-white/80">
-                  Телефон
+                  {copy?.phoneLabel ?? "Телефон"}
                   <input
                     name="phone"
                     placeholder="+7"
@@ -501,7 +519,7 @@ function CallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
                   type="submit"
                   className="bg-[#9e1f36] px-5 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#b72b43]"
                 >
-                  Заказать обратный звонок
+                  {copy?.callbackSubmitLabel ?? "Заказать обратный звонок"}
                 </button>
               </form>
             )}
@@ -529,7 +547,7 @@ function DropdownMenu({
     <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
       <button
         type="button"
-        className="flex items-center gap-1 whitespace-nowrap py-6 transition hover:text-white"
+        className="nav-dropdown-trigger flex items-center gap-1 whitespace-nowrap py-6 transition hover:text-white"
         onClick={onOpen}
         onFocus={onOpen}
         aria-expanded={active}
@@ -544,13 +562,13 @@ function DropdownMenu({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 top-[64px] grid min-w-72 gap-1 rounded-lg border border-white/12 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            className="nav-dropdown absolute left-0 top-[64px] grid min-w-72 gap-1 rounded-lg border border-white/12 bg-[#101217]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-[1.12]"
           >
             {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-md px-4 py-3 text-sm font-bold text-white transition hover:bg-white/[0.07]"
+                className="nav-dropdown-item rounded-md px-4 py-3 text-sm font-bold text-white transition hover:bg-white/[0.07]"
                 onClick={onClose}
               >
                 {item.label}
@@ -580,7 +598,7 @@ function MobileAccordion({
     <div className="overflow-hidden rounded-lg border border-white/12 bg-white/[0.04]">
       <button
         type="button"
-        className="flex w-full items-center justify-between px-4 py-4 text-left text-base font-black text-white"
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-black text-white"
         onClick={onToggle}
         aria-expanded={open}
       >
