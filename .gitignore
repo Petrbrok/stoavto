@@ -35,6 +35,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Gluetun runtime state
+vpn-state/
+
 # Temporary editor files
 *.swp
 *.swo

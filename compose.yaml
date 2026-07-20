@@ -1,10 +1,16 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   site:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_SITE_URL: https://стоавто24.рф
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://xn--24-6kci2dcrid.xn--p1ai}
 
     env_file:
       - .env
@@ -12,6 +18,7 @@ services:
     container_name: stoavto-site
     restart: unless-stopped
     init: true
+    logging: *default-logging
 
     ports:
       - "127.0.0.1:3000:3000"
@@ -38,10 +45,44 @@ services:
       retries: 3
       start_period: 30s
 
+  vpn:
+    image: qmcgaw/gluetun:v3
+    container_name: stoavto-vpn
+    restart: unless-stopped
+    logging: *default-logging
+
+    cap_add:
+      - NET_ADMIN
+
+    devices:
+      - /dev/net/tun:/dev/net/tun
+
+    environment:
+      VPN_SERVICE_PROVIDER: protonvpn
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: ${PROTON_WIREGUARD_PRIVATE_KEY:?PROTON_WIREGUARD_PRIVATE_KEY is required}
+      FREE_ONLY: "on"
+      HTTPPROXY: "on"
+      HTTPPROXY_LISTENING_ADDRESS: ":8888"
+      HEALTH_RESTART_VPN: "on"
+      TZ: Europe/Moscow
+
+    expose:
+      - "8888"
+
+    volumes:
+      - ./vpn-state:/gluetun
+
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: stoavto-tunnel
     restart: unless-stopped
+    logging: *default-logging
+
+    environment:
+      HTTP_PROXY: http://vpn:8888
+      HTTPS_PROXY: http://vpn:8888
+      NO_PROXY: site,localhost,127.0.0.1
 
     command:
       - tunnel
@@ -50,10 +91,12 @@ services:
       - http2
       - run
       - --token
-      - eyJhIjoiY2JlMzZkZDNlNDY1ZjFmOTUwOWQ1OWU4ZTdiOGM3YmEiLCJ0IjoiZTM5NGRhZTktOTUxYi00ODVmLWI1MjItZTUwNjNkMWE0NWNkIiwicyI6IlpXUmpOakUxTURndFkyRmlNQzAwWmpCa0xXSXdPV1V0WW1WbU9XVXdZekU1T0RreiJ9
+      - ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}
 
     depends_on:
       site:
+        condition: service_healthy
+      vpn:
         condition: service_healthy
 
     security_opt:
