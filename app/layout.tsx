@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import { Manrope, Unbounded } from "next/font/google";
 import { SITE_URL } from "@/data/site";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
+
+const themeScript = `
+  try {
+    const saved = localStorage.getItem("site-theme");
+    const theme = saved === "light" || saved === "dark"
+      ? saved
+      : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+  } catch {}
+`;
 
 const manrope = Manrope({
   subsets: ["cyrillic", "latin"],
@@ -56,8 +67,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
-      <body className={`${manrope.variable} ${unbounded.variable} antialiased`}>{children}</body>
+    <html lang="ru" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
+      <body className={`${manrope.variable} ${unbounded.variable} antialiased`}>
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

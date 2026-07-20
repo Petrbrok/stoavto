@@ -111,10 +111,7 @@ export function SiteHeader({ onAppointment, content }: { onAppointment?: () => v
   ).filter((phone) => phone.visible !== false && phone.label.trim() && phone.label.trim() !== "+7");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("site-theme") as ThemeMode | null;
-    const systemLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-    const nextTheme = saved === "light" || saved === "dark" ? saved : systemLight ? "light" : "dark";
-    document.documentElement.dataset.theme = nextTheme;
+    const nextTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
     const timer = window.setTimeout(() => setThemeMode(nextTheme), 0);
     return () => window.clearTimeout(timer);
   }, []);

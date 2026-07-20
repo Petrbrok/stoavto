@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import * as simpleIcons from "simple-icons";
+import { siAudi, siBmw, siCitroen, siFiat, siFord, siHyundai, siPeugeot, siVolkswagen } from "simple-icons/icons";
 import { AppointmentModal } from "@/components/appointment-modal";
 import { LeadFormModal } from "@/components/lead-form-modal";
 import { SiteFooter as SharedSiteFooter } from "@/components/site-footer";
@@ -14,6 +14,17 @@ import type { CalculatorContent, ImageTextItem, ReviewContent, SiteContent } fro
 type SimpleIcon = {
   title: string;
   path: string;
+};
+
+const brandIcons: Record<string, SimpleIcon> = {
+  siAudi,
+  siBmw,
+  siCitroen,
+  siFiat,
+  siFord,
+  siHyundai,
+  siPeugeot,
+  siVolkswagen
 };
 
 const advantageLayouts = [
@@ -548,8 +559,7 @@ function formatRub(value: number) {
 }
 
 function BrandMark({ brand }: { brand: SiteContent["pages"]["brands"]["items"][number] }) {
-  const icons = simpleIcons as unknown as Record<string, SimpleIcon | undefined>;
-  const icon = brand.icon ? icons[brand.icon] : undefined;
+  const icon = brand.icon ? brandIcons[brand.icon] : undefined;
 
   if (icon) {
     return (

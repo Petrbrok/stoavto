@@ -20,6 +20,19 @@ html {
   scroll-behavior: smooth;
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
 body {
   margin: 0;
   background:
@@ -609,17 +622,33 @@ html[data-theme="light"] .site-shell #price-calculator [class*="bg-black/20"] {
 }
 
 html[data-theme="light"] .site-shell .nav-dropdown {
-  --tw-backdrop-blur: blur(30px) !important;
-  --tw-backdrop-saturate: saturate(1.3) !important;
+  --tw-backdrop-blur: blur(44px) !important;
+  --tw-backdrop-saturate: saturate(1.22) !important;
   border-color: rgba(105, 91, 89, 0.24) !important;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(241, 235, 234, 0.86)) !important;
+    linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(241, 235, 234, 0.68)) !important;
   box-shadow:
     0 28px 72px rgba(54, 42, 41, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(30px) saturate(1.3) contrast(1.03) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(1.3) contrast(1.03) !important;
+  backdrop-filter: blur(44px) saturate(1.22) contrast(1.02) !important;
+  -webkit-backdrop-filter: blur(44px) saturate(1.22) contrast(1.02) !important;
+}
+
+.site-shell > section:not(:first-of-type),
+.site-shell > .site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .partner-marquee-track {
+    animation: none;
+  }
 }
 
 html[data-theme="light"] .site-shell .nav-dropdown-item {
