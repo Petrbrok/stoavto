@@ -1,14 +1,53 @@
-node_modules
-.next
-out
-dist
-.env*
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# Safe environment template must stay in Git
 !.env.example
+
+# SQLite runtime databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Vercel local metadata
+.vercel/
+
+# Logs
 *.log
-*.tsbuildinfo
-.vercel
-data/*.sqlite
-data/*.sqlite-*
-data/*.db
-data/*.db-*
-data/uploads/*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary editor files
+*.swp
+*.swo
+*.tmp
+*~
+
+# Synology metadata
+@eaDir/
+**/@eaDir/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+
+# Temporary project folders
+tmp-admin-audit/

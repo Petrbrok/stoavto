@@ -4,22 +4,35 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_SITE_URL: https://стоавто24.рф
+
+    env_file:
+      - .env
+
     container_name: stoavto-site
     restart: unless-stopped
     init: true
+
     ports:
       - "127.0.0.1:3000:3000"
-    env_file:
-      - .env
+
     security_opt:
       - no-new-privileges:true
+
     cap_drop:
       - ALL
+
     volumes:
       - ./data:/app/data
+
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -29,10 +42,22 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: stoavto-tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --protocol
+      - http2
+      - run
+      - --token
+      - eyJhIjoiY2JlMzZkZDNlNDY1ZjFmOTUwOWQ1OWU4ZTdiOGM3YmEiLCJ0IjoiZTM5NGRhZTktOTUxYi00ODVmLWI1MjItZTUwNjNkMWE0NWNkIiwicyI6IlpXUmpOakUxTURndFkyRmlNQzAwWmpCa0xXSXdPV1V0WW1WbU9XVXdZekU1T0RreiJ9
+
     depends_on:
-      - site
+      site:
+        condition: service_healthy
+
     security_opt:
       - no-new-privileges:true
+
     cap_drop:
       - ALL
