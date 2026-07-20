@@ -46,6 +46,35 @@ button {
   border-radius: var(--radius-ui);
 }
 
+.admin-shell,
+.admin-shell * {
+  min-width: 0;
+}
+
+.admin-shell {
+  overflow-x: clip;
+}
+
+.admin-shell button,
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea,
+.admin-shell label,
+.admin-shell section,
+.admin-shell div {
+  max-width: 100%;
+}
+
+.admin-shell button,
+.admin-shell label,
+.admin-shell h1,
+.admin-shell h2,
+.admin-shell h3,
+.admin-shell p,
+.admin-shell span {
+  overflow-wrap: anywhere;
+}
+
 ::selection {
   background: rgba(196, 58, 82, 0.45);
   color: #fff;

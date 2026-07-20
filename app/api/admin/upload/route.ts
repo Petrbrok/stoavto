@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { getUploadsPath } from "@/lib/storage-paths";
 
 export const runtime = "nodejs";
 
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  const uploadDir = getUploadsPath();
   await fs.mkdir(uploadDir, { recursive: true });
 
   const safeName = `${Date.now()}-${randomUUID()}${extensionFromName(file.name)}`;

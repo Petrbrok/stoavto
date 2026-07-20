@@ -4,33 +4,22 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import { defaultSiteContent } from "@/lib/default-site-content";
+import { getDatabasePath } from "@/lib/storage-paths";
 import type { SiteContent } from "@/types/site-content";
 
 const CONTENT_KEY = "site-content";
 
 let db: Database.Database | null = null;
 
-function getDbPath() {
-  if (process.env.SITE_DB_PATH) {
-    return process.env.SITE_DB_PATH;
-  }
-
-  if (process.env.VERCEL) {
-    return path.join("/tmp", "site.sqlite");
-  }
-
-  return path.join(process.cwd(), "data", "site.sqlite");
-}
-
 function openDb() {
   if (db) {
     return db;
   }
 
-  const dbPath = getDbPath();
+  const dbPath = getDatabasePath();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   db = new Database(dbPath);
-  db.pragma(process.env.VERCEL ? "journal_mode = DELETE" : "journal_mode = WAL");
+  db.pragma("journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS content_store (
       key TEXT PRIMARY KEY,

@@ -105,14 +105,14 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
         {status && <p className="mx-auto mt-3 max-w-[1440px] text-sm font-bold text-[#c43a52]">{status}</p>}
       </header>
 
-      <div className="mx-auto grid max-w-[1440px] gap-6 px-4 py-6 md:grid-cols-[240px_1fr] md:px-8">
-        <nav className="grid h-fit gap-2 rounded-lg border border-white/10 bg-white/[0.035] p-2 md:sticky md:top-28">
+      <div className="mx-auto grid min-w-0 max-w-[1440px] gap-6 px-4 py-6 lg:grid-cols-[240px_1fr] md:px-8">
+        <nav className="relative z-20 grid min-w-0 h-fit gap-2 rounded-lg border border-white/10 bg-white/[0.035] p-2 sm:grid-cols-2 lg:sticky lg:top-28 lg:grid-cols-1">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded-lg px-4 py-3 text-left text-sm font-bold transition ${
+              className={`min-h-11 rounded-lg px-4 py-3 text-left text-sm font-bold leading-snug transition ${
                 activeTab === tab.key ? "bg-[#9e1f36] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white"
               }`}
             >
@@ -121,7 +121,7 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
           ))}
         </nav>
 
-        <section className="grid gap-5">
+        <section className="grid min-w-0 gap-5">
           {activeTab === "home" && <HomeSectionEditor content={content} setContent={setContent} />}
           {activeTab === "services" && <ServicesEditor content={content} setContent={setContent} />}
           {activeTab === "brands" && <BrandsEditor content={content} setContent={setContent} />}
@@ -138,9 +138,9 @@ export function AdminPanel({ initialContent }: { initialContent: SiteContent }) 
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-white/10 bg-[#101217] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
+    <section className="min-w-0 rounded-lg border border-white/10 bg-[#101217] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.25)]">
       <h2 className="text-xl font-black">{title}</h2>
-      <div className="mt-5 grid gap-4">{children}</div>
+      <div className="mt-5 grid min-w-0 gap-4">{children}</div>
     </section>
   );
 }
@@ -158,9 +158,9 @@ function TextField({
   textarea?: boolean;
   type?: string;
 }) {
-  const className = "border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition placeholder:text-white/34 focus:border-[#c43a52]";
+  const className = "min-w-0 border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition placeholder:text-white/34 focus:border-[#c43a52]";
   return (
-    <label className="grid gap-2 text-sm font-bold text-white/80">
+    <label className="grid min-w-0 gap-2 text-sm font-bold text-white/80">
       {label}
       {textarea ? (
         <textarea value={String(value)} onChange={(event) => onChange(event.target.value)} rows={4} className={`${className} resize-y`} />
@@ -173,9 +173,9 @@ function TextField({
 
 function ToggleField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return (
-    <label className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-black/18 px-4 py-3 text-sm font-bold text-white/80">
-      {label}
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+    <label className="flex min-h-11 items-center justify-between gap-4 rounded-lg border border-white/10 bg-black/18 px-4 py-3 text-sm font-bold leading-snug text-white/80">
+      <span className="min-w-0 break-words">{label}</span>
+      <input className="h-5 w-5 shrink-0" type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
     </label>
   );
 }
@@ -192,9 +192,9 @@ function SelectField({
   options: Array<{ label: string; value: string }>;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-bold text-white/80">
+    <label className="grid min-w-0 gap-2 text-sm font-bold text-white/80">
       {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="min-w-0 border border-white/12 bg-black/24 px-4 py-3 text-white outline-none transition focus:border-[#c43a52]">
         {options.map((option) => (
           <option key={option.value} value={option.value}>{option.label}</option>
         ))}
@@ -222,11 +222,11 @@ function ImageField({ label, value, onChange }: { label: string; value: string; 
     <div className="grid gap-2">
       <span className="text-sm font-bold text-white/80">{label}</span>
       {value && (
-        <div className="relative aspect-[16/7] overflow-hidden rounded-lg border border-white/10 bg-black/24">
-          <Image src={value} alt="" fill sizes="520px" className="object-contain" />
+        <div className="pointer-events-none relative aspect-[16/7] overflow-hidden rounded-lg border border-white/10 bg-black/24">
+          <Image src={value} alt="" fill sizes="520px" style={{ pointerEvents: "none" }} className="object-contain" />
         </div>
       )}
-      <input value={value} onChange={(event) => onChange(event.target.value)} className="border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]" />
+      <input value={value} onChange={(event) => onChange(event.target.value)} className="min-w-0 border border-white/12 bg-black/24 px-4 py-3 text-white outline-none focus:border-[#c43a52]" />
       <div className="flex flex-wrap items-center gap-3">
         <input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0])} className="text-sm text-white/70" />
         {value && (
@@ -317,7 +317,7 @@ function ContactsEditor({ content, setContent }: EditorProps) {
 
 function PhoneCard({ title, phone, onChange, onRemove }: { title: string; phone: ContactPhone; onChange: (phone: ContactPhone) => void; onRemove: () => void }) {
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px]">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 xl:grid-cols-[1fr_1fr_160px]">
       <TextField label={title} value={phone.label} onChange={(label) => onChange({ ...phone, label })} />
       <TextField label="Ссылка tel:" value={phone.href} onChange={(href) => onChange({ ...phone, href })} />
       <div className="grid content-end gap-3">
@@ -341,7 +341,7 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
         <TextField label="Заголовок" value={calculator.title} onChange={(value) => setCalculator({ ...calculator, title: value })} />
         <TextField label="Описание" textarea value={calculator.text} onChange={(value) => setCalculator({ ...calculator, text: value })} />
         <TextField label="Подпись результа" value={calculator.resultLabel} onChange={(value) => setCalculator({ ...calculator, resultLabel: value })} />
-        <TextField label="Примечание к результа" textarea value={calculator.resultNote} onChange={(value) => setCalculator({ ...calculator, resultNote: value })} />
+        <TextField label="Примечание к результату" textarea value={calculator.resultNote} onChange={(value) => setCalculator({ ...calculator, resultNote: value })} />
         <TextField label="Кнопка" value={calculator.submitLabel} onChange={(value) => setCalculator({ ...calculator, submitLabel: value })} />
       </Card>
       <Card title="Параметры расчета">
@@ -412,8 +412,8 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
             onRemove={() => setCalculator({ ...calculator, toggles: calculator.toggles.filter((_, itemIndex) => itemIndex !== index) })}
           />
         ))}
-        <button type="button" onClick={() => setCalculator({ ...calculator, toggles: [...calculator.toggles, { label: "РќРѕРІР°СЏ РґРѕРїР»Р°С‚Р°", value: `toggle-${Date.now()}`, amountType: "fixed", amount: 0, defaultChecked: false, visible: true }] })} className="border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
-          Р”РѕР±Р°РІРёС‚СЊ РґРѕРїР»Р°С‚Сѓ
+        <button type="button" onClick={() => setCalculator({ ...calculator, toggles: [...calculator.toggles, { label: "Новая доплата", value: `toggle-${Date.now()}`, amountType: "fixed", amount: 0, defaultChecked: false, visible: true }] })} className="min-h-11 border border-white/14 px-4 py-3 text-sm font-bold text-white/80 transition hover:border-[#c43a52]">
+          Добавить доплату
         </button>
       </Card>
     </>
@@ -422,7 +422,7 @@ function CalculatorEditor({ content, setContent }: EditorProps) {
 
 function CalculatorOptionCard({ option, onChange, onRemove }: { option: CalculatorOption; onChange: (option: CalculatorOption) => void; onRemove: () => void }) {
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px_160px]">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 xl:grid-cols-[1fr_1fr_160px_160px]">
       <TextField label="Название" value={option.label} onChange={(label) => onChange({ ...option, label })} />
       <TextField label="Код" value={option.value} onChange={(value) => onChange({ ...option, value })} />
       <TextField label="Коэффициент" type="number" value={option.factor ?? 1} onChange={(value) => onChange({ ...option, factor: Number(value) })} />
@@ -434,14 +434,14 @@ function CalculatorOptionCard({ option, onChange, onRemove }: { option: Calculat
 }
 function ServicePriceCard({ service, onChange, onRemove }: { service: CalculatorService; onChange: (service: CalculatorService) => void; onRemove: () => void }) {
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-5">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 xl:grid-cols-5">
       <TextField label="Название" value={service.label} onChange={(value) => onChange({ ...service, label: value })} />
       <TextField label="Код" value={service.value} onChange={(value) => onChange({ ...service, value })} />
       <TextField label="От" type="number" value={service.base} onChange={(value) => onChange({ ...service, base: Number(value) })} />
       <TextField label="До" type="number" value={service.max} onChange={(value) => onChange({ ...service, max: Number(value) })} />
       <TextField label="Срок" value={service.days} onChange={(value) => onChange({ ...service, days: value })} />
       <ToggleField label="Показывать" checked={service.visible} onChange={(visible) => onChange({ ...service, visible })} />
-      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 hover:text-white md:col-span-4">
+      <button type="button" onClick={onRemove} className="min-h-11 rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 hover:text-white xl:col-span-4">
         Удалить
       </button>
     </div>
@@ -452,7 +452,7 @@ function TogglePriceCard({ toggle, onChange, onRemove }: { toggle: CalculatorTog
   const amountType = toggle.amountType ?? "fixed";
 
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-5">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 xl:grid-cols-5">
       <TextField label="Название" value={toggle.label} onChange={(value) => onChange({ ...toggle, label: value })} />
       <TextField label="Код" value={toggle.value} onChange={(value) => onChange({ ...toggle, value })} />
       <SelectField
@@ -466,7 +466,7 @@ function TogglePriceCard({ toggle, onChange, onRemove }: { toggle: CalculatorTog
       />
       <TextField label={amountType === "percent" ? "Процент, %" : "Доплата, руб."} type="number" value={toggle.amount} onChange={(value) => onChange({ ...toggle, amount: Number(value) })} />
       <ToggleField label="Показывать" checked={toggle.visible} onChange={(visible) => onChange({ ...toggle, visible })} />
-      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-5">
+      <button type="button" onClick={onRemove} className="min-h-11 rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white xl:col-span-5">
         Удалить
       </button>
     </div>
@@ -579,11 +579,11 @@ function FooterEditor({ content, setContent }: EditorProps) {
 
 function FooterServiceCard({ service, onChange, onRemove }: { service: FooterService; onChange: (service: FooterService) => void; onRemove: () => void }) {
   return (
-    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 md:grid-cols-[1fr_1fr_160px]">
+    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/18 p-4 xl:grid-cols-[1fr_1fr_160px]">
       <TextField label="Название" value={service.label} onChange={(value) => onChange({ ...service, label: value })} />
       <TextField label="Ссылка" value={service.href} onChange={(value) => onChange({ ...service, href: value })} />
       <ToggleField label="Показывать" checked={service.visible} onChange={(visible) => onChange({ ...service, visible })} />
-      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-3">
+      <button type="button" onClick={onRemove} className="min-h-11 rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white xl:col-span-3">
         Удалить
       </button>
     </div>
@@ -653,7 +653,7 @@ function ImageTextManager({ item, onChange, onRemove }: { item: ImageTextItem; o
       <TextField label="Описание" textarea value={item.caption} onChange={(value) => onChange({ ...item, caption: value })} />
       <ImageField label="Фото" value={item.image || ""} onChange={(value) => onChange({ ...item, image: value })} />
       <ToggleField label="Показывать" checked={item.visible !== false} onChange={(visible) => onChange({ ...item, visible })} />
-      <button type="button" onClick={onRemove} className="rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-2">
+      <button type="button" onClick={onRemove} className="min-h-11 rounded-lg border border-white/14 px-4 py-3 text-sm font-bold text-white/70 transition hover:border-[#c43a52] hover:text-white md:col-span-2">
         Удалить фото-блок
       </button>
     </div>
