@@ -5,14 +5,13 @@
 ## Однократная подготовка
 
 1. Создайте отдельный бесплатный аккаунт Proton VPN.
-2. В Proton откройте **Downloads → WireGuard configuration**, выберите GNU/Linux и создайте конфигурацию бесплатного сервера.
-3. Откройте скачанный файл и скопируйте только значение строки `PrivateKey`.
-4. В папке проекта создайте `.env` из `.env.example` и заполните:
-   - `PROTON_WIREGUARD_PRIVATE_KEY` — скопированный ключ;
+2. В Proton откройте **Account → OpenVPN / IKEv2 username**. Это отдельные технические данные, не пароль от аккаунта.
+3. В папке проекта создайте `.env` из `.env.example` и заполните:
+   - `PROTON_OPENVPN_USERNAME` и `PROTON_OPENVPN_PASSWORD`;
    - `CLOUDFLARE_TUNNEL_TOKEN` — новый токен туннеля;
    - пароли администратора сайта.
-5. Не публикуйте `.env`: файл исключён из Git.
-6. Один раз установите автозагрузку VPN-модуля:
+4. Не публикуйте `.env`: файл исключён из Git.
+5. Один раз установите автозагрузку VPN-модуля:
 
 ```sh
 sudo cp scripts/synology-enable-tun.sh /usr/local/etc/rc.d/stoavto-tun.sh
