@@ -12,6 +12,13 @@
    - `CLOUDFLARE_TUNNEL_TOKEN` — новый токен туннеля;
    - пароли администратора сайта.
 5. Не публикуйте `.env`: файл исключён из Git.
+6. Один раз установите автозагрузку VPN-модуля:
+
+```sh
+sudo cp scripts/synology-enable-tun.sh /usr/local/etc/rc.d/stoavto-tun.sh
+sudo chmod 755 /usr/local/etc/rc.d/stoavto-tun.sh
+sudo /usr/local/etc/rc.d/stoavto-tun.sh start
+```
 
 ## Запуск
 
